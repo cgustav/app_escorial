@@ -1,0 +1,39 @@
+# docker-compose.yml
+version: "3.8"
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      # - DJANGO_SETTINGS_MODULE=el_escorial.settings # Actualizado al nombre real del proyecto
+      - DJANGO_SETTINGS_MODULE=NegocioModel.settings
+      - MYSQL_DATABASE=el_escorial
+      - MYSQL_USER=administrador
+      - MYSQL_PASSWORD=Administrador
+      - MYSQL_ROOT_PASSWORD=PasswordRoot
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    volumes:
+      - mysql_persistent_data:/var/lib/mysql # Datos persistentes de MySQL
+      - ./bulk_data.sql:/docker-entrypoint-initdb.d/bulk_data.sql # Archivo de dump
+      - ./init-scripts:/docker-entrypoint-initdb.d # Scripts de inicialización
+    environment:
+      - MYSQL_DATABASE=el_escorial
+      - MYSQL_USER=administrador
+      - MYSQL_PASSWORD=Administrador
+      - MYSQL_ROOT_PASSWORD=PasswordRoot
+    ports:
+      - "3306:3306"
+
+volumes:
+  mysql_persistent_data:
+    external: true # Esto hace que el volumen persista incluso si se elimina el contenedor
+

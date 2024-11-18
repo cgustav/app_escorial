@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">>
+    <style>
+        .country-box {
+            background-color: lavenderblush;
+            text-align: center;
+            border: 1px solid #65349d6f;
+            margin: 10px;
+            padding: 10px;
+            display: inline-block; 
+            vertical-align: top; 
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+             height: 100vh;
+            margin: 0;
+        }
+
+        section {
+            text-align: center;
+        }
+
+        footer {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+    <title>Futbol</title>
+</head>
+<body>
+   <section>
+    <h1 class="titulo">Equipos de Futbol de Paises Sudamericanos</h1>
+    <h6>El fútbol sudamericano es una pasión que une a millones de fanáticos en el continente. Con una rica historia y tradición, Sudamérica ha producido algunos de los equipos y jugadores más icónicos del mundo. La región es conocida por su estilo de juego emocionante y ofensivo, y ha ganado numerosos títulos de la Copa del Mundo, incluyendo equipos legendarios como Brasil y Argentina. Además, competiciones como la Copa Libertadores ofrecen algunos de los encuentros de clubes más emocionantes del planeta, convirtiendo al fútbol sudamericano en una parte integral de la cultura deportiva global.<h6>
+    <h2>Paises Sudamericanos<h2>
+   </section>
+   <footer>
+    <a href="{% url 'inicio' %}">
+        <div class="country-box">
+            <h4>Brasil<h4>
+            <button class="btn btn-info">Ver Equipos</button>
+        </div>
+    </a>
+    <a href="{% url 'inicio' %}">
+        <div class="country-box">
+            <h4>Argentina<h4>
+            <button class="btn btn-info">Ver Equipos</button>
+        </div>
+    </a>
+    <a href="{% url 'inicio' %}">
+        <div class="country-box">
+            <h4>Chile<h4>
+            <button class="btn btn-info">Ver Equipos</button>
+        </div>
+    </a>
+    <a href="{% url 'inicio' %}">
+        <div class="country-box">
+            <h4>Colombia<h4>
+            <button class="btn btn-info">Ver Equipos</button>
+        </div>
+    </a>
+    <a href="{% url 'inicio' %}">
+        <div class="country-box">
+            <h4>Venezuela<h4>
+            <button class="btn btn-info">Ver Equipos</button>
+        </div>
+    </a>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    </footer>
+</body>
+</html>

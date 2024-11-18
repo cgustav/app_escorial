@@ -1,0 +1,206 @@
+{% extends "tiendaTemplates/base.html" %} 
+{% load static %} 
+{% load form_tags %}
+{% block contenido %}
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <!-- Formulario -->
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <h2 class="h4 mb-0">Añadir Repuesto</h2>
+        </div>
+        <div class="card-body">
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="needs-validation"
+            novalidate
+          >
+            {% csrf_token %} 
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-3">
+              <!-- Código Repuesto -->
+              <div class="col-12 col-sm-6">
+                <div class="form-group">
+                  {{ form.codigoRepuesto.label_tag }} 
+                  {{ form.codigoRepuesto|addclass:"form-control" }} 
+                  {% if form.codigoRepuesto.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.codigoRepuesto.errors }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Nombre -->
+              <div class="col-12 col-sm-6">
+                <div class="form-group">
+                  {{ form.nombre.label_tag }} 
+                  {{ form.nombre|addclass:"form-control" }} 
+                  {% if form.nombre.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.nombre.errors }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Tipo -->
+              <div class="col-12 col-sm-6">
+                <div class="form-group">
+                  {{ form.tipo.label_tag }} 
+                  {{ form.tipo|addclass:"form-select" }} 
+                  {% if form.tipo.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.tipo.errors }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Precio -->
+              <div class="col-12 col-sm-6">
+                <div class="form-group">
+                  {{ form.precio.label_tag }} 
+                  {{ form.precio|addclass:"form-control" }} 
+                  {% if form.precio.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.precio.errors }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Cantidad -->
+              <div class="col-12 col-sm-6">
+                <div class="form-group">
+                  {{ form.cantidad.label_tag }} 
+                  {{ form.cantidad|addclass:"form-control" }} 
+                  {% if form.cantidad.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.cantidad.errors }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Fotografía -->
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="foto" class="form-label"
+                    >Foto del Repuesto:</label
+                  >
+                  <input
+                    type="file"
+                    name="fotografia"
+                    id="foto"
+                    class="form-control"
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="row mt-4">
+              <div class="col-12 d-flex gap-2 justify-content-between">
+                <div class="btn-group">
+                  <a href="{% url 'inicio' %}" class="btn btn-outline-dark">
+                    <i class="fas fa-home me-1"></i>Inicio
+                  </a>
+                  <a href="{% url 'repuestos' %}" class="btn btn-outline-dark">
+                    <i class="fas fa-list me-1"></i>Ver Repuestos
+                  </a>
+                </div>
+                <button type="submit" class="btn btn-dark">
+                  <i class="fas fa-save me-1"></i>Guardar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Imagen Preview -->
+    <div class="col-12 col-md-4 col-lg-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <img
+            id="preview"
+            src="{% static 'images/tractor.png' %}"
+            alt="Vista previa del repuesto"
+            class="img-fluid rounded mb-3"
+            style="max-height: 200px; object-fit: contain"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script para preview de imagen -->
+<script>
+  document.getElementById("foto").onchange = function (e) {
+    const preview = document.getElementById("preview");
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+</script>
+
+<style>
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #212529;
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25);
+  }
+
+  .btn-outline-dark:hover {
+    background-color: #212529;
+    color: white;
+  }
+
+  .card {
+    border: none;
+    border-radius: 0.5rem;
+  }
+
+  .card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+  }
+
+  @media (max-width: 576px) {
+    .btn-group {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .btn-group .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .d-flex.gap-2 {
+      flex-direction: column;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}

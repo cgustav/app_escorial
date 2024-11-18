@@ -1,0 +1,22 @@
+{% extends "tiendaTemplates/base.html" %}
+{% block contenido %}
+
+    <!-- Agrega un formulario de búsqueda si lo deseas -->
+    <form method="get" action="{% url 'buscar_repuestos' %}">
+        <input type="text" name="q" value="{{ query }}" placeholder="Ingrese nombre del repuesto">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <!-- Muestra los resultados de la búsqueda -->
+    <table class="table table-dark table-striped">
+        <!-- ... tus encabezados de tabla ... -->
+        <tbody>
+            {% for repuesto in repuestos %}
+            <tr>
+                <td>{{ repuesto.nombre }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
