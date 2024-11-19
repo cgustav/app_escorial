@@ -59,9 +59,11 @@ if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     SECURE_HSTS_PRELOAD = True
     
     # Configuración de hosts permitidos para producción
-    ALLOWED_HOSTS = [
-        os.environ.get('ALLOWED_HOSTS', '').split(','),
-    ]
+    # ALLOWED_HOSTS = [
+    #     os.environ.get('ALLOWED_HOSTS', '').split(','),
+    # ]
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+
 else:
     # Configuraciones de desarrollo
     # DEBUG = True
