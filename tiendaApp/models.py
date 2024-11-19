@@ -56,7 +56,13 @@ class Repuesto(models.Model):
             MaxValueValidator(99999999, message="El precio es demasiado alto")
         ]
     )
-    cantidad = models.ForeignKey('Cantidad', on_delete=models.CASCADE)  # asumiendo que este es tu modelo
+    # cantidad = models.ForeignKey('Cantidad', on_delete=models.CASCADE)  # asumiendo que este es tu modelo
+    cantidad = models.ForeignKey(
+        'Cantidad',
+        on_delete=models.CASCADE,
+        null=True,  # Mantenemos null=True
+        default=None  # Valor por defecto None
+    )
     creado = models.DateTimeField(auto_now=True,editable=False)
 
     def generarNombre(instance, filename):
