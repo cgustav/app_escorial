@@ -32,7 +32,7 @@ STATIC_DIR = os.path.join(BASE_DIR,'static')
 SECRET_KEY = 'django-insecure-ywmoc@#5xjk6j=ou$b1%ohy5%-4+do5jvm4q8i+6*_(pc4t#pf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
 # ALLOWED_HOSTS = []
 
@@ -43,10 +43,12 @@ SESSION_COOKIE_SECURE = False  # Por defecto False
 CSRF_COOKIE_SECURE = False    # Por defecto False
 SECURE_SSL_REDIRECT = False   # Por defecto False
 
+# DEBUG = os.getenv('DB_ENGINE')
+DEBUG = True
 
 if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     # Configuraciones de producción
-    DEBUG = False
+    # DEBUG = False
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -62,7 +64,7 @@ if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     ]
 else:
     # Configuraciones de desarrollo
-    DEBUG = True
+    # DEBUG = True
     ALLOWED_HOSTS = ['*']
     # Las configuraciones de seguridad se mantienen en False por defecto
 
