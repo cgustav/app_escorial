@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator  # Añade esta importación
+from django.core.validators import MinValueValidator, MaxValueValidator  # Añade esta importación
 
 import os
 
@@ -45,13 +45,18 @@ class Cantidad(models.Model):
         verbose_name_plural = 'Cantidades'
 
 class Repuesto(models.Model):
-    codigoRepuesto = models.CharField(max_length=20,verbose_name='Código del Repuesto')
-    nombre = models.CharField(max_length=20,verbose_name='Nombre')
+    codigoRepuesto = models.CharField(max_length=20,verbose_name='Código del Repuesto', editable=False)
+    nombre = models.CharField(max_length=160,verbose_name='Nombre')
     tipo = models.ForeignKey(Tipo,null=False,on_delete=models.RESTRICT)
-    precio = models.PositiveIntegerField(default=460000,verbose_name='Precio')
-    # cantidad = models.ForeignKey(Cantidad,null=True,on_delete=models.CASCADE)
+    # precio = models.PositiveIntegerField(default=8000,null=False, verbose_name='Precio')
+    precio = models.PositiveIntegerField(
+        verbose_name='Precio',
+        validators=[
+            MinValueValidator(1, message="El precio debe ser mayor a 0"),
+            MaxValueValidator(99999999, message="El precio es demasiado alto")
+        ]
+    )
     cantidad = models.ForeignKey('Cantidad', on_delete=models.CASCADE)  # asumiendo que este es tu modelo
-
     creado = models.DateTimeField(auto_now=True,editable=False)
 
     def generarNombre(instance, filename):
@@ -68,6 +73,17 @@ class Repuesto(models.Model):
         return getattr(self.cantidad, 'valor', self.cantidad)
 
     def save(self, *args, **kwargs):
+        
+        if not self.codigoRepuesto:
+            # Generar código automático
+            ultimo_repuesto = Repuesto.objects.order_by('-codigoRepuesto').first()
+            if ultimo_repuesto:
+                ultimo_numero = int(ultimo_repuesto.codigoRepuesto[3:])
+                nuevo_numero = ultimo_numero + 1
+            else:
+                nuevo_numero = 1
+            self.codigoRepuesto = f'REP{nuevo_numero:04d}'
+            
         # Verificar si la imagen ya está configurada
         if not self.fotografia:
             self.fotografia = 'repuestos/tractor.png'  # Asignar la imagen por defecto

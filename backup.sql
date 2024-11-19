@@ -347,7 +347,7 @@ LOCK TABLES `repuesto` WRITE;
 /*!40000 ALTER TABLE `repuesto` DISABLE KEYS */;
 INSERT INTO `repuesto` VALUES (2,'Neumatico 55x90','002',70000,'2024-11-15 21:56:21.528746',2,3,'repuestos/ampolleta_02rdG1u.png'),(6,'Aceite Total 525','001',89900,'2024-11-18 03:22:52.641276',4,2,'repuestos/tempalta.png');
 /*!40000 ALTER TABLE `repuesto` ENABLE KEYS */;
-UNLOCK TABLES;  
+UNLOCK TABLES;
 
 --
 -- Table structure for table `tiendaApp_pedido`

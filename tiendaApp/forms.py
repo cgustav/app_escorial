@@ -9,13 +9,41 @@ import datetime
 
 
 class RepuestoForm(forms.ModelForm):
-    codigoRepuesto = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ingrese código repuesto'}))
-    nombre = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ingrese nombre'}))
-    precio = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder':'Ingrese precio'}))
+    # codigoRepuesto = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ingrese código repuesto'}))
+    
+    codigoRepuesto = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'readonly': 'readonly',
+            'placeholder': 'Se generará automáticamente'
+        }),
+        required=False
+    )
+    # nombre = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ingrese nombre'}))
+    nombre = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese nombre'
+        }),
+        max_length=160
+    )
+    # precio = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder':'Ingrese precio'}))
+    
+    precio = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese precio',
+            'min': '1',
+            'max': '99999999'
+        }),
+        min_value=1,
+        max_value=99999999
+    )
+    
     fotografia = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}), required=False)
    
     tipo = forms.ModelChoiceField(
-        queryset=Tipo.objects.all(),
+        queryset=Tipo.objects.all().order_by('-nombre'),  # Orden descendente
         empty_label='Seleccione un tipo de repuesto',
         widget=forms.Select(attrs={'class':'form-control'})
     )
@@ -29,6 +57,15 @@ class RepuestoForm(forms.ModelForm):
         model = Repuesto
         fields = '__all__'
         exclude =['fotografia']
+        
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+        if precio is not None:
+            if precio <= 0:
+                raise ValidationError("El precio debe ser mayor a 0")
+            if precio > 99999999:
+                raise ValidationError("El precio es demasiado alto")
+        return precio
 
 class SearchForm(forms.Form):
     query = forms.CharField(
