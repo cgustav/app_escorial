@@ -49,8 +49,8 @@ DEBUG = True
 if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     # Configuraciones de producción
     # DEBUG = False
-    # SESSION_COOKIE_SECURE = True
-    # CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
     # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # SESSION_COOKIE_SECURE = False
