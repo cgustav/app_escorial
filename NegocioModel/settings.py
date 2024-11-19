@@ -52,6 +52,15 @@ if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+    CSRF_COOKIE_DOMAIN = '.zozlabs.cloud'  # El dominio base de tu sitio
+
+    CSRF_TRUSTED_ORIGINS = [
+    'https://escorial.zozlabs.cloud',
+    'http://escorial.zozlabs.cloud',
+    'https://*.zozlabs.cloud',
+    'http://*.zozlabs.cloud'
+    ]
+
     # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # SESSION_COOKIE_SECURE = False
     # CSRF_COOKIE_SECURE = False
