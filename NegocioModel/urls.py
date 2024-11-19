@@ -23,6 +23,8 @@ from django.conf.urls.static import static
 # from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 
+from django.http import HttpResponse
+
 # Crear un decorador personalizado para staff
 # def staff_member_required(view_func):
 #     decorated_view = user_passes_test(
@@ -32,9 +34,15 @@ from django.contrib.admin.views.decorators import staff_member_required
 #     return decorated_view
 
 
+def health_check(request):
+    return HttpResponse("OK")
+
 urlpatterns = [
+    path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('',vistas.inicio,name='inicio'),
+    
+
     # path('login',vistas.inicio,name='inicio'),
     # path('logout/', views.logout_view, name='logout'),
     
