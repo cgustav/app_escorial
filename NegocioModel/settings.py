@@ -62,7 +62,8 @@ if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     # ALLOWED_HOSTS = [
     #     os.environ.get('ALLOWED_HOSTS', '').split(','),
     # ]
-    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+    # ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+    ALLOWED_HOSTS = ['*']
 
 else:
     # Configuraciones de desarrollo
