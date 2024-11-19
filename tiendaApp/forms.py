@@ -1,6 +1,6 @@
 from dataclasses import fields
 # from socket import fromshare
-from tkinter.tix import Select
+# from tkinter.tix import Select
 from django import forms
 from tiendaApp.models import Tipo,Cantidad,Repuesto, Pedido, PedidoItem
 from django.core.exceptions import ValidationError
