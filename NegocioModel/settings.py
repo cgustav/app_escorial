@@ -29,6 +29,36 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
+# Configuraciones base de seguridad
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = False  # Por defecto False
+CSRF_COOKIE_SECURE = False    # Por defecto False
+SECURE_SSL_REDIRECT = False   # Por defecto False
+
+
+if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
+    # Configuraciones de producción
+    DEBUG = False
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # Configuración de hosts permitidos para producción
+    ALLOWED_HOSTS = [
+        os.environ.get('ALLOWED_HOSTS', '').split(','),
+    ]
+else:
+    # Configuraciones de desarrollo
+    DEBUG = True
+    ALLOWED_HOSTS = ['*']
+    # Las configuraciones de seguridad se mantienen en False por defecto
+
 # LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"

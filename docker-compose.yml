@@ -10,6 +10,7 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_SETTINGS_MODULE=NegocioModel.settings
+      - DJANGO_ENVIRONMENT=development # Marca el entorno como desarrollo
       - DB_ENGINE=django.db.backends.mysql
       - DB_NAME=el_escorial
       - DB_USER=administrador
