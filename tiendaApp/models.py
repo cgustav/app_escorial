@@ -65,14 +65,27 @@ class Repuesto(models.Model):
     )
     creado = models.DateTimeField(auto_now=True,editable=False)
 
-    def generarNombre(instance, filename):
-        extension = os.path.splittext(filename)[1][1:]  # Obtener la extensión del archivo
-        ruta = 'empleados'
-        fecha = timezone.now().strftime('%Y%m%d_%H%M%S')  # Agregar marca de tiempo
-        nombre = "{}.{}".format(fecha,extension)
-        return os.path.join(ruta,nombre)
+    # NOTE: Metodo anterior
+    # def generarNombre(instance, filename):
+    #     extension = os.path.splittext(filename)[1][1:]  # Obtener la extensión del archivo
+    #     ruta = 'empleados'
+    #     fecha = timezone.now().strftime('%Y%m%d_%H%M%S')  # Agregar marca de tiempo
+    #     nombre = "{}.{}".format(fecha,extension)
+    #     return os.path.join(ruta,nombre)
     
-    fotografia = models.ImageField(upload_to=generarNombre, null=True, default='repuestos/tractor.png')
+    # NOTE: Metodo Upload S3
+    def imagen_path(instance, filename):
+        # Genera una ruta única para cada imagen
+        ext = filename.split('.')[-1]
+        filename = f"{instance.codigoRepuesto}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
+        return f'repuestos/{filename}'
+    
+    fotografia = models.ImageField(
+        upload_to=imagen_path, 
+        null=True, 
+        blank=True, 
+        default='repuestos/tractor.png'
+    )
     
     @property
     def stock_disponible(self):

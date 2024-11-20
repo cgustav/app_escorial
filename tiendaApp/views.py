@@ -27,10 +27,18 @@ def crear_repuesto(request):
             repuesto = form.save(commit=False)
 
             # Verificar si se proporcionó una nueva imagen
-            if not repuesto.fotografia:
-                repuesto.fotografia = 'media/tractor.png'  # Asignar la imagen por defecto
+            # if not repuesto.fotografia:
+            #     repuesto.fotografia = 'media/tractor.png'
+            
+            # Manejar la imagen
+            if 'fotografia' in request.FILES:
+                repuesto.fotografia = request.FILES['fotografia']
+            else:
+                repuesto.fotografia = 'repuestos/tractor.png'
 
             repuesto.save()
+            messages.success(request, 'Repuesto creado exitosamente')
+
             return redirect('repuestos')  # Cambia 'repuestos' con la URL a la que quieras redirigir después de crear el repuesto
     else:
         form = RepuestoForm()

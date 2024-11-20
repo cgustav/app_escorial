@@ -40,7 +40,21 @@ class RepuestoForm(forms.ModelForm):
         max_value=99999999
     )
     
-    fotografia = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}), required=False)
+    # NOTE Metodo Antiguo
+    # fotografia = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}), required=False)
+    
+    # NOTE Nuevo Metodo S3
+    fotografia = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        }),
+        error_messages={
+            'invalid_image': 'El archivo debe ser una imagen válida'
+        }
+    )
+
    
     tipo = forms.ModelChoiceField(
         queryset=Tipo.objects.all().order_by('-nombre'),  # Orden descendente
@@ -66,6 +80,19 @@ class RepuestoForm(forms.ModelForm):
             if precio > 99999999:
                 raise ValidationError("El precio es demasiado alto")
         return precio
+    
+    def clean_fotografia(self):
+        foto = self.cleaned_data.get('fotografia')
+        if foto:
+            # Validar tamaño máximo (ejemplo: 8MB)
+            if foto.size > 8 * 1024 * 1024:
+                raise ValidationError("La imagen no debe superar los 8MB")
+            
+            # Validar tipos de archivo permitidos
+            allowed_types = ['image/jpeg', 'image/png', 'image/jpg']
+            if foto.content_type not in allowed_types:
+                raise ValidationError("Solo se permiten archivos JPEG y PNG")
+        return foto
 
 class SearchForm(forms.Form):
     query = forms.CharField(

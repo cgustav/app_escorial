@@ -37,6 +37,15 @@ SECRET_KEY = 'django-insecure-ywmoc@#5xjk6j=ou$b1%ohy5%-4+do5jvm4q8i+6*_(pc4t#pf
 # ALLOWED_HOSTS = []
 
 
+# AWS RELATED CONFIGURATION
+
+DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'storages.backends.s3boto3.S3Boto3Storage') 
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'escorial-images-xxxx')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+
+
 # Configuraciones base de seguridad
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = False  # Por defecto False
@@ -104,6 +113,8 @@ INSTALLED_APPS = [
     'tiendaApp',
     'crispy_forms',
     'crispy_bootstrap5',
+    'storages',
+
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
