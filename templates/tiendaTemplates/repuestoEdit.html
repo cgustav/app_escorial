@@ -63,16 +63,24 @@
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="id_foto" class="form-label">Fotografía del Repuesto</label>
-                                    <input type="file" id="id_foto" name="foto" class="form-control" accept="image/*">
-                                    {% if form.foto.errors %}
+                                    {% comment %} <input type="file" id="id_foto" name="foto" class="form-control" accept="image/*"> {% endcomment %}
+                                    <input 
+                                    type="file" 
+                                    id="id_foto" 
+                                    name="fotografia"
+                                    class="form-control" 
+                                    accept="image/*"
+                                    data-max-size="8388608" {# 8MB en bytes #}
+                                    >
+                                    {% if form.fotografia.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.foto.errors }}
+                                        {{ form.fotografia.errors }}
                                     </div>
                                     {% endif %}
                                     
-                                    {% if repuesto.foto %}
+                                    {% if repuesto.fotografia %}
                                     <div class="mt-2">
-                                        <img src="{{ repuesto.foto.url }}" alt="Foto actual" class="img-thumbnail" style="max-height: 100px;">
+                                        <img src="{{ repuesto.fotografia.url }}" alt="Foto actual" class="img-thumbnail" style="max-height: 100px;">
                                         <p class="text-muted small">Foto actual</p>
                                     </div>
                                     {% endif %}
@@ -125,7 +133,7 @@
             <div class="card shadow-sm">
                 <div class="card-body text-center">
                     <img id="preview" 
-                         src="{% if repuesto.foto %}{{ repuesto.foto.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}"
+                         src="{% if repuesto.fotografia %}{{ repuesto.fotografia.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}"
                          alt="Vista previa del repuesto"
                          class="img-fluid rounded mb-3"
                          style="max-height: 200px; object-fit: contain;">
@@ -160,8 +168,24 @@
 
 <script>
 document.getElementById('id_foto').onchange = function(e) {
-    const preview = document.getElementById('preview');
     const file = e.target.files[0];
+    const maxSize = this.dataset.maxSize;
+    const preview = document.getElementById('preview');
+
+    // Validar tamaño
+    if (file && file.size > maxSize) {
+        alert('El archivo es demasiado grande. El tamaño máximo es 8MB.');
+        this.value = '';
+        return;
+    }
+    
+    // Validar tipo
+    if (file && !file.type.match('image.*')) {
+        alert('Solo se permiten archivos de imagen.');
+        this.value = '';
+        return;
+    }
+    
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {

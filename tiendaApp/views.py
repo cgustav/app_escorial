@@ -97,14 +97,26 @@ def editar_repuesto(request,repuesto_id):
     if request.method == 'POST':
         form = RepuestoForm(request.POST, request.FILES, instance=repuesto)
         if form.is_valid():
+            repuesto = form.save(commit=False)
+            
             if 'fotografia' in request.FILES:
+                # Si hay una nueva imagen, S3 automáticamente sobrescribirá la anterior
                 repuesto.fotografia = request.FILES['fotografia']
-            form.save()
+            elif not repuesto.fotografia:
+                # Si no hay imagen y tampoco había una antes, usar la imagen por defecto
+                repuesto.fotografia = 'repuestos/tractor.png'
+                
+            repuesto.save()
+            messages.success(request, 'Repuesto actualizado exitosamente')
+            
             return redirect('repuestos')
     else:
         form = RepuestoForm(instance=repuesto)
 
-    return render(request, 'tiendaTemplates/repuestos.html', {'form':form})
+    return render(request, 'tiendaTemplates/repuestoEdit.html', {
+        'form':form,
+        'repuesto': repuesto
+    })
 
 @login_required
 @user_passes_test(staff_check, login_url='login')
