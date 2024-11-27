@@ -264,4 +264,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# deploy_escorial
+# deploy_escorial.pub
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,windows,django,visualstudiocode
