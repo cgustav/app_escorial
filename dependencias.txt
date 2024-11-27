@@ -3,3 +3,5 @@ mysqlclient
 pillow
 django-crispy-forms
 crispy-bootstrap5
+boto3
+django-storages
