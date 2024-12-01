@@ -7,6 +7,7 @@ WORKDIR /app
 # Instalar dependencias
 COPY dependencias.txt .
 RUN pip install -r dependencias.txt
+RUN pip3 install psycopg2-binary python-dotenv
 
 # Copiar el proyecto
 COPY . .

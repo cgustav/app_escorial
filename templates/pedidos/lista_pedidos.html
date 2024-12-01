@@ -4,6 +4,71 @@
 
 {% block contenido %}
 <div class="container-fluid py-4">
+
+    <!-- SECTION Formulario de búsqueda -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="search-form">
+                <div class="row g-3 align-items-end">
+                    <!-- Búsqueda -->
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            {{ form.query }}
+                        </div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="col-12 col-md-3 col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="fas fa-filter"></i>
+                            </span>
+                            {{ form.estado }}
+                        </div>
+                    </div>
+
+                    <!-- Fecha desde -->
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small mb-1">Desde</label>
+                        {{ form.fecha_desde }}
+                    </div>
+
+                    <!-- Fecha hasta -->
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small mb-1">Hasta</label>
+                        {{ form.fecha_hasta }}
+                    </div>
+
+                    <!-- Ordenamiento -->
+                    <div class="col-12 col-md-3 col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="fas fa-sort"></i>
+                            </span>
+                            {{ form.orden }}
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-12 col-md-auto">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                            <a href="{% url 'lista_pedidos' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Limpiar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- !SECTION Formulario de búsqueda -->
+
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Pedidos</h4>
@@ -56,4 +121,40 @@
         </div>
     </div>
 </div>
+
+<style>
+    .search-form .form-control,
+    .search-form .form-select {
+        height: 38px;
+    }
+    
+    .search-form .input-group-text {
+        border-right: none;
+    }
+    
+    .search-form .form-control:focus,
+    .search-form .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .search-form .input-group .form-control {
+        border-left: none;
+    }
+    
+    .search-form .input-group .form-control:focus + .input-group-text {
+        border-color: #0d6efd;
+    }
+    
+    @media (max-width: 768px) {
+        .search-form .d-flex {
+            flex-direction: column;
+        }
+        
+        .search-form .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
 {% endblock %}

@@ -2,7 +2,7 @@ from dataclasses import fields
 # from socket import fromshare
 # from tkinter.tix import Select
 from django import forms
-from tiendaApp.models import Tipo,Cantidad,Repuesto, Pedido, PedidoItem
+from tiendaApp.models import Tipo,Repuesto, Pedido, PedidoItem
 from django.core.exceptions import ValidationError
 
 import datetime
@@ -61,10 +61,24 @@ class RepuestoForm(forms.ModelForm):
         empty_label='Seleccione un tipo de repuesto',
         widget=forms.Select(attrs={'class':'form-control'})
     )
-    cantidad = forms.ModelChoiceField(
-        queryset=Cantidad.objects.all(),
-        empty_label='Seleccione una cantidad',
-        widget=forms.Select(attrs={'class':'form-control'})
+    
+    # NOTE CODIGO REFACTORIZADO - REFACTOR FROM cantidad to stock
+    # cantidad = forms.ModelChoiceField(
+    #     queryset=Cantidad.objects.all(),
+    #     empty_label='Seleccione una cantidad',
+    #     widget=forms.Select(attrs={'class':'form-control'})
+    # )
+    
+    # TODO REVIEW THIS AFTER REFACTOR FROM cantidad to stock
+    stock = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese stock disponible',
+            'min': '0',
+            'max': '99999'
+        }),
+        min_value=0,
+        max_value=99999
     )
 
     class Meta:
@@ -94,16 +108,41 @@ class RepuestoForm(forms.ModelForm):
                 raise ValidationError("Solo se permiten archivos JPEG y PNG")
         return foto
 
+# class SearchForm(forms.Form):
+#     query = forms.CharField(
+#         required=False,
+#         widget=forms.TextInput(attrs={
+#             'class': 'form-control',
+#             'placeholder': 'Buscar insumo...'
+#         })
+#     )
+    # query = forms.CharField(label='Buscar', max_length=100)
+
 class SearchForm(forms.Form):
     query = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Buscar insumo...'
+            'placeholder': 'Buscar por nombre, código, tipo o precio...',
+            'autocomplete': 'off'
         })
     )
-    # query = forms.CharField(label='Buscar', max_length=100)
-
+    tipo = forms.ModelChoiceField(
+        queryset=Tipo.objects.all(),
+        required=False,
+        empty_label="Todos los tipos",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    orden = forms.ChoiceField(
+        choices=[
+            ('nombre', 'Nombre (A-Z)'),
+            ('-nombre', 'Nombre (Z-A)'),
+            ('precio', 'Precio (menor a mayor)'),
+            ('-precio', 'Precio (mayor a menor)'),
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
 class PedidoForm(forms.ModelForm):
     class Meta:
@@ -112,6 +151,47 @@ class PedidoForm(forms.ModelForm):
         widgets = {
             'notas': forms.Textarea(attrs={'rows': 3}),
         }
+        
+        
+class PedidoSearchForm(forms.Form):
+    query = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Buscar por cliente, teléfono o N° de pedido...',
+            'autocomplete': 'off'
+        })
+    )
+    estado = forms.ChoiceField(
+        choices=[('', 'Todos los estados')] + Pedido.ESTADO_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    fecha_desde = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    fecha_hasta = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    orden = forms.ChoiceField(
+        choices=[
+            ('-fecha_creacion', 'Más recientes primero'),
+            ('fecha_asc', 'Más antiguos primero'),
+            ('cliente', 'Cliente (A-Z)'),
+            ('total_asc', 'Total (menor a mayor)'),
+            ('total_desc', 'Total (mayor a menor)'),
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
 class PedidoItemForm(forms.ModelForm):
     class Meta:

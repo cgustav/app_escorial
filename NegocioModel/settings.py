@@ -39,11 +39,7 @@ SECRET_KEY = 'django-insecure-ywmoc@#5xjk6j=ou$b1%ohy5%-4+do5jvm4q8i+6*_(pc4t#pf
 
 # AWS RELATED CONFIGURATION
 
-DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'storages.backends.s3boto3.S3Boto3Storage') 
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'escorial-images-xxxx')
-AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
+
 
 
 # Configuraciones base de seguridad
@@ -56,6 +52,13 @@ SECURE_SSL_REDIRECT = False   # Por defecto False
 DEBUG = True
 
 if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
+    
+    DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'storages.backends.s3boto3.S3Boto3Storage') 
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'escorial-images-xxxx')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+
     # Configuraciones de producción
     # DEBUG = False
     SESSION_COOKIE_SECURE = True
@@ -64,15 +67,11 @@ if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     CSRF_COOKIE_DOMAIN = '.zozlabs.cloud'  # El dominio base de tu sitio
 
     CSRF_TRUSTED_ORIGINS = [
-    'https://escorial.zozlabs.cloud',
-    'http://escorial.zozlabs.cloud',
-    'https://*.zozlabs.cloud',
-    'http://*.zozlabs.cloud'
+        'https://escorial.zozlabs.cloud',
+        'http://escorial.zozlabs.cloud',
+        'https://*.zozlabs.cloud',
+        'http://*.zozlabs.cloud'
     ]
-
-    # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    # SESSION_COOKIE_SECURE = False
-    # CSRF_COOKIE_SECURE = False
 
     SECURE_SSL_REDIRECT = False
     SECURE_PROXY_SSL_HEADER = None
@@ -84,22 +83,18 @@ if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     SECURE_HSTS_PRELOAD = True
     
     # Configuración de hosts permitidos para producción
-    # ALLOWED_HOSTS = [
-    #     os.environ.get('ALLOWED_HOSTS', '').split(','),
-    # ]
-    # ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
     ALLOWED_HOSTS = ['*']
 
 else:
+    
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
     # Configuraciones de desarrollo
-    # DEBUG = True
     ALLOWED_HOSTS = ['*']
-    # Las configuraciones de seguridad se mantienen en False por defecto
 
 # LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-# Application definition
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
@@ -153,21 +148,6 @@ WSGI_APPLICATION = 'NegocioModel.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# PLAIN CONFIG
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'el_escorial',
-#         'USER': 'administrador',
-#         'PASSWORD': 'Administrador',
-#         'HOST': 'db',
-#         'PORT': '3306',
-#         'OPTIONS':{
-#             'init_command':'SET sql_mode="STRICT_ALL_TABLES"',
-#             'charset': 'utf8mb4',
-#         }
-#     }
-# }
 
 # SECURE CONFIG
 DATABASES = {

@@ -103,11 +103,11 @@
                             <!-- Cantidad -->
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
-                                    {{ form.cantidad.label_tag }}
-                                    {{ form.cantidad|addclass:"form-control" }}
-                                    {% if form.cantidad.errors %}
+                                    {{ form.stock.label_tag }}
+                                    {{ form.stock|addclass:"form-control" }}
+                                    {% if form.stock.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.cantidad.errors }}
+                                        {{ form.stock.errors }}
                                     </div>
                                     {% endif %}
                                 </div>

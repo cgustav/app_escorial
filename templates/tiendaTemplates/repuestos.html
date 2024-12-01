@@ -10,12 +10,35 @@
         <div class="col-12 col-md-6">
             <div class="card">
                 <div class="card-body">
+                    {% comment %} 
                     <form method="get" action="{% url 'repuestos' %}" class="d-flex gap-2">
-                        {% comment %} {{ form|addclass:"form-control" }} {% endcomment %}
                         {{ form.query }}
                         <button type="submit" class="btn btn-dark">
                             <i class="fas fa-search"></i>
                         </button>
+                    </form> ´
+                    {% endcomment %}
+
+                    <form method="get" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                {{ form.query }}
+                            </div>
+                            <div class="col-12 col-md-3">
+                                {{ form.tipo }}
+                            </div>
+                            <div class="col-12 col-md-3">
+                                {{ form.orden }}
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                                <a href="{% url 'repuestos' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Limpiar
+                                </a>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -61,8 +84,8 @@
                             <td>{{ repuesto.tipo }}</td>
                             <td>${{ repuesto.precio|floatformat:0 }}</td>
                             <td>
-                                <span class="badge {% if repuesto.cantidad < 5 %}bg-danger{% elif repuesto.cantidad < 10 %}bg-warning{% else %}bg-success{% endif %}">
-                                    {{ repuesto.cantidad }}
+                                <span class="badge {% if repuesto.stock < 3 %}bg-danger{% elif repuesto.stock < 8 %}bg-warning{% else %}bg-success{% endif %}">
+                                    {{ repuesto.stock }}
                                 </span>
                             </td>
                             <td>

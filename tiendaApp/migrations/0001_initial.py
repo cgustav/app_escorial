@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 ('nombre', models.CharField(max_length=20, verbose_name='Nombre')),
                 ('precio', models.PositiveIntegerField(default=460000, verbose_name='Precio')),
                 ('creado', models.DateTimeField(auto_now=True)),
-                ('fotografia', models.ImageField(default='repuestos/tractor.png', null=True, upload_to=tiendaApp.models.Repuesto.generarNombre)),
+                ('fotografia', models.ImageField(default='repuestos/tractor.png', null=True, upload_to=tiendaApp.models.Repuesto.imagen_path)),
                 ('cantidad', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='tiendaApp.cantidad')),
                 ('tipo', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='tiendaApp.tipo')),
             ],

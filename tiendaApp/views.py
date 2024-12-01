@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from tiendaApp.forms import RepuestoForm, SearchForm, PedidoForm, PedidoItemForm
+from tiendaApp.forms import RepuestoForm, SearchForm, PedidoForm, PedidoItemForm, PedidoSearchForm
 from django.contrib import messages
-from tiendaApp.models import Repuesto,Tipo,Cantidad, Pedido, PedidoItem
+from tiendaApp.models import Repuesto,Tipo, Pedido, PedidoItem
 from .forms import SearchForm
 from django.core.paginator import Paginator
 # from django.contrib.auth.decorators import login_required, user_passes_test
@@ -48,32 +48,85 @@ def crear_repuesto(request):
 @login_required
 @user_passes_test(staff_check, login_url='login')
 def todos_repuesto(request):
-    repuestos = Repuesto.objects.all()
-    paginator = Paginator(repuestos, 10)  # 10 items por página
-    tipos = Tipo.objects.all()
-    cantidades = Cantidad.objects.all()
     
-    # Paginador de repuestos
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    # Utilidades de busqueda
+    query = request.GET.get('query', '')
+    tipo_seleccionado = request.GET.get('tipo')
+    orden = request.GET.get('orden', 'nombre')
+    
+    if query:
+        repuestos = Repuesto.buscar(query)
+    else:
+        repuestos = Repuesto.objects.all()
+    
+    
+    repuestos = Repuesto.aplicar_filtros(
+        repuestos, 
+        tipo=tipo_seleccionado, 
+        orden=orden
+    )
+    
+    
+    # Aplicar filtro por tipo independientemente de la query
+    # tipo_seleccionado = request.GET.get('tipo')
+    # if tipo_seleccionado:
+    #     repuestos = repuestos.filter(tipo_id=tipo_seleccionado)
+    
+    # # Aplicar ordenamiento independientemente de la query
+    # orden = request.GET.get('orden', 'nombre')
+    # if orden:
+    #     if orden in ['-precio', 'precio', '-nombre', 'nombre']:
+    #         repuestos = repuestos.order_by(orden)
+    
+    
+    # Ordenar los resultados
+    # orden = request.GET.get('orden', 'nombre')
+    # if orden:
+    #     if orden == '-precio':
+    #         repuestos = repuestos.order_by(orden)
+    #     else:
+    #         repuestos = repuestos.order_by('nombre')
+    
 
+    # Paginador de repuestos
+    paginator = Paginator(repuestos, 10)  # 10 items por página
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+
+    tipos = Tipo.objects.all()
+    # tipo_seleccionado = request.GET.get('tipo')
+    
+    # if tipo_seleccionado:
+    #     repuestos = repuestos.filter(tipo_id=tipo_seleccionado)
+
+    # cantidades = Cantidad.objects.all()
+    
     # Código de búsqueda
     query = None
     results = []
 
-    if 'query' in request.GET:
-        form = SearchForm(request.GET)
-        if form.is_valid():
-            query = form.cleaned_data['query']
-            repuestos = Repuesto.objects.filter(nombre__icontains=query)
-    else:
-        form = SearchForm()
+    # if 'query' in request.GET:
+    #     form = SearchForm(request.GET)
+    #     if form.is_valid():
+    #         query = form.cleaned_data['query']
+    #         repuestos = Repuesto.objects.filter(nombre__icontains=query)
+    # else:
+    #     form = SearchForm()
 
+
+    # form = SearchForm(initial={'query': query})
+    # Preparar el formulario con los valores actuales
+    form = SearchForm(initial={
+        'query': query,
+        'tipo': tipo_seleccionado,
+        'orden': orden
+    })
+    
     data = {
         'page_obj': page_obj,
         'repuestos': repuestos,
         'tipos': tipos,
-        'cantidades': cantidades,
+        # 'cantidades': cantidades,
         'form': form,
         'query': query,
         'results': repuestos,  # Puedes personalizar esto según tu lógica de búsqueda
@@ -133,9 +186,53 @@ def eliminar_repuesto(request, repuesto_id):
 @login_required
 @user_passes_test(staff_check)
 def lista_pedidos(request):
-    pedidos = Pedido.objects.all().order_by('-fecha_creacion')
+    
+    
+    # Obtener parámetros de búsqueda y filtrado
+    query = request.GET.get('query', '')
+    estado = request.GET.get('estado')
+    fecha_desde = request.GET.get('fecha_desde')
+    fecha_hasta = request.GET.get('fecha_hasta')
+    orden = request.GET.get('orden', '-fecha_creacion')
+
+    # Realizar búsqueda
+    if query:
+        pedidos = Pedido.buscar(query)
+    else:
+        pedidos = Pedido.objects.all()
+        
+    # pedidos = Pedido.objects.all().order_by('-fecha_creacion')
+    # return render(request, 'pedidos/lista_pedidos.html', {
+    #     'pedidos': pedidos
+    # })
+    
+    # Aplicar filtros
+    pedidos = Pedido.aplicar_filtros(
+        pedidos,
+        estado=estado,
+        orden=orden,
+        fecha_desde=fecha_desde,
+        fecha_hasta=fecha_hasta
+    )
+    
+    # Paginación
+    paginator = Paginator(pedidos, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    
+    # Preparar formulario
+    form = PedidoSearchForm(initial={
+        'query': query,
+        'estado': estado,
+        'orden': orden,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta
+    })
+    
     return render(request, 'pedidos/lista_pedidos.html', {
-        'pedidos': pedidos
+        'form': form,
+        'page_obj': page_obj,
+        'pedidos': page_obj,
+        'query': query
     })
     
 @login_required
