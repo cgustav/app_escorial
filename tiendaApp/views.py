@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from tiendaApp.forms import RepuestoForm, SearchForm, PedidoForm, PedidoItemForm, PedidoSearchForm
+from tiendaApp.forms import RepuestoForm, SearchForm, PedidoForm, PedidoItemForm, PedidoSearchForm, StockOperationForm,StockOperationSearchForm
 from django.contrib import messages
-from tiendaApp.models import Repuesto,Tipo, Pedido, PedidoItem
+from tiendaApp.models import Repuesto,Tipo, Pedido, PedidoItem, StockOperation
 from .forms import SearchForm
 from django.core.paginator import Paginator
 # from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
+from ipware import get_client_ip
+import logging
 
+logger = logging.getLogger(__name__)
 
 def staff_check(user):
     return user.is_staff
@@ -183,6 +186,120 @@ def eliminar_repuesto(request, repuesto_id):
     return render(request, 'tiendaTemplates/repuestoDel.html', {'repuesto':repuesto})
 
 
+
+@login_required
+@user_passes_test(staff_check)
+def registro_operacion_stock(request, tipo_operacion):
+    if tipo_operacion not in ['INGRESO', 'MERMA']:
+        messages.error(request, "Tipo de operación inválida")
+        return redirect('lista_operaciones_stock')
+        
+    if request.method == 'POST':
+        client_ip, _ = get_client_ip(request)
+        form = StockOperationForm(
+            request.POST, 
+            tipo_operacion=tipo_operacion,
+            user=request.user,
+            ip_address=client_ip or '0.0.0.0'
+        )
+        
+        if form.is_valid():
+            try:
+                operacion = form.save()
+                messages.success(
+                    request, 
+                    f"{'Ingreso' if tipo_operacion == 'INGRESO' else 'Merma'} registrado exitosamente"
+                )
+                return redirect('lista_operaciones_stock')
+            except ValidationError as e:
+                messages.error(request, str(e))
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = StockOperationForm()
+    
+    # Filtrar los repuestos según el tipo de operación
+    if tipo_operacion == 'MERMA':
+        # Para mermas, solo mostrar repuestos con stock > 0
+        form.fields['repuesto'].queryset = Repuesto.objects.filter(stock__gt=0)
+    
+    context = {
+        'form': form,
+        'tipo_operacion': tipo_operacion,
+        'titulo': 'Ingreso de Existencias' if tipo_operacion == 'INGRESO' else 'Registro de Merma',
+        'es_ingreso': tipo_operacion == 'INGRESO'
+    }
+    
+    return render(request, 'stock/registro_operacion.html', context)
+
+@login_required
+@user_passes_test(staff_check)
+def lista_operaciones_stock(request):
+    form = StockOperationSearchForm(request.GET)
+    operaciones = StockOperation.objects.all()
+    # operaciones = StockOperation.objects.select_related('repuesto', 'usuario').all()
+    
+    
+    # Aplicar filtros
+    if form.is_valid():
+        query = form.cleaned_data.get('query')
+        tipo_operacion = form.cleaned_data.get('tipo_operacion')
+        fecha_desde = form.cleaned_data.get('fecha_desde')
+        fecha_hasta = form.cleaned_data.get('fecha_hasta')
+
+        operaciones = StockOperation.buscar(
+            query=query,
+            tipo_operacion=tipo_operacion,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta
+        )
+        
+    # Paginación
+    paginator = Paginator(operaciones, 10)  # 10 items por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'form': form,
+        'operaciones': page_obj,
+        'page_obj': page_obj,
+        'total_registros': operaciones.count(),
+        'query_params': request.GET.urlencode()
+    }
+    
+    return render(request, 'stock/lista_operaciones.html', context)
+
+
+# @login_required
+# @user_passes_test(staff_check)
+# def exportar_operaciones_stock(request):
+#     operaciones = StockOperation.buscar(
+#         query=request.GET.get('query'),
+#         tipo_operacion=request.GET.get('tipo_operacion'),
+#         fecha_desde=request.GET.get('fecha_desde'),
+#         fecha_hasta=request.GET.get('fecha_hasta')
+#     )
+
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename="operaciones_stock.csv"'
+
+#     writer = csv.writer(response)
+#     writer.writerow(['Fecha', 'Tipo', 'Repuesto', 'Cantidad', 'Usuario', 'Motivo'])
+
+#     for op in operaciones:
+#         writer.writerow([
+#             op.fecha_operacion.strftime('%d/%m/%Y %H:%M'),
+#             op.get_tipo_operacion_display(),
+#             op.repuesto.nombre,
+#             op.cantidad,
+#             op.usuario.username,
+#             op.motivo
+#         ])
+
+#     return response
+    
 @login_required
 @user_passes_test(staff_check)
 def lista_pedidos(request):
@@ -200,11 +317,6 @@ def lista_pedidos(request):
         pedidos = Pedido.buscar(query)
     else:
         pedidos = Pedido.objects.all()
-        
-    # pedidos = Pedido.objects.all().order_by('-fecha_creacion')
-    # return render(request, 'pedidos/lista_pedidos.html', {
-    #     'pedidos': pedidos
-    # })
     
     # Aplicar filtros
     pedidos = Pedido.aplicar_filtros(
@@ -292,14 +404,42 @@ def eliminar_item_pedido(request, item_id):
     item = get_object_or_404(PedidoItem, id=item_id)
     pedido_id = item.pedido.id
     
-    # Restaurar el stock
-    stock_actual = item.repuesto.cantidad.get_valor_numerico()
-    nuevo_stock = str(stock_actual + item.cantidad)
-    item.repuesto.cantidad.nombre = nuevo_stock
-    item.repuesto.cantidad.save()
-    
-    item.delete()
-    messages.success(request, 'Item eliminado del pedido')
+    logger.info(f"Item ID: {item_id}, Cantidad: {item.cantidad}, Stock actual: {item.repuesto.stock}")
+
+    try:
+        if item.pedido.estado == 'CANCELADO':
+            raise ValidationError("No se pueden eliminar items de un pedido cancelado")
+            
+        # Restaurar stock y registrar operación si el pedido no está cancelado
+        if item.pedido.estado != 'CANCELADO':
+            # Crear operación de stock tipo RESTITUCION
+            # StockOperation.objects.create(
+            #     repuesto=item.repuesto,
+            #     cantidad=item.cantidad,
+            #     tipo_operacion='RESTITUCION',
+            #     motivo=f'Eliminación de item en pedido #{item.pedido.id}',
+            #     usuario=request.user,
+            #     ip_address=get_client_ip(request)[0],
+            #     documento_referencia=''
+            # )
+            
+            # Restaurar stock
+            # item.repuesto.stock += item.cantidad
+            
+            # Declarar operación autorizada
+            # item.repuesto._stock_operation = True  
+
+            # if item.repuesto.stock > 4294967295:
+            #     raise ValidationError("El stock no puede exceder el máximo permitido.")
+            
+            # item.repuesto.save()
+            
+            item.delete()
+            messages.success(request, 'Item eliminado del pedido')
+        
+    except ValidationError as e:
+        messages.error(request, str(e))
+        
     return redirect('detalle_pedido', pedido_id=pedido_id)
 
 @login_required
@@ -310,8 +450,13 @@ def cambiar_estado_pedido(request, pedido_id):
     if request.method == 'POST':
         nuevo_estado = request.POST.get('estado')
         if nuevo_estado in dict(Pedido.ESTADO_CHOICES):
-            pedido.estado = nuevo_estado
-            pedido.save()
-            messages.success(request, 'Estado del pedido actualizado')
+            if nuevo_estado == 'CANCELADO':
+                client_ip, _ = get_client_ip(request)
+                pedido.cancelar_pedido(request.user, client_ip)
+                messages.warning(request, 'Pedido cancelado y stock restituido')
+            else:
+                pedido.estado = nuevo_estado
+                pedido.save()
+                messages.success(request, 'Estado del pedido actualizado')
     
     return redirect('detalle_pedido', pedido_id=pedido_id)

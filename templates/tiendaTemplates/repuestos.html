@@ -3,48 +3,53 @@
 {% block contenido %}
 <div class="container-fluid py-4">
     <!-- Header y Búsqueda -->
-    <div class="row mb-4 align-items-center">
-        <div class="col-12 col-md-6">
-            <h2 class="mb-0">Inventario de Insumos</h2>
+    <div class="row mb-4">
+         <div class="col-12">
+            <h2 class="mb-0">Insumos</h2>
         </div>
-        <div class="col-12 col-md-6">
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="row mb-4">
+        <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    {% comment %} 
-                    <form method="get" action="{% url 'repuestos' %}" class="d-flex gap-2">
-                        {{ form.query }}
-                        <button type="submit" class="btn btn-dark">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form> ´
-                    {% endcomment %}
-
-                    <form method="get" class="mb-4">
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
+                    <form method="get" class="row g-3">
+                        <!-- Campo de búsqueda -->
+                        <div class="col-12 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-search"></i>
+                                </span>
                                 {{ form.query }}
                             </div>
-                            <div class="col-12 col-md-3">
-                                {{ form.tipo }}
-                            </div>
-                            <div class="col-12 col-md-3">
-                                {{ form.orden }}
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search"></i> Buscar
-                                </button>
-                                <a href="{% url 'repuestos' %}" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Limpiar
-                                </a>
-                            </div>
+                        </div>
+
+                        <!-- Selector de tipo -->
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            {{ form.tipo }}
+                        </div>
+
+                        <!-- Selector de orden -->
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            {{ form.orden }}
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="col-12 col-lg-1 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <a href="{% url 'repuestos' %}" class="btn btn-secondary flex-fill">
+                                <i class="fas fa-times"></i>
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
+    
     <!-- Resultados de búsqueda -->
     {% if query %}
     <div class="alert alert-info">
@@ -57,12 +62,25 @@
 
     <!-- Tabla Responsiva -->
     <div class="card shadow-sm">
+
+
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Listado de Repuestos</h5>
+            <div class="btn-group">
+                <a href="{% url 'lista_operaciones_stock' %}" class="btn btn-light">
+                    <i class="fas fa-history me-2"></i>Registro de Stock
+                </a>
+                <a href="{% url 'crearRepuestos' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Agregar Repuesto
+                </a>
+            </div>
+        </div>
+        {% comment %} <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <span>Listado de Repuestos</span>
             <a class="btn btn-success btn-sm" href="{% url 'crearRepuestos' %}">
                 <i class="fas fa-plus me-1"></i>Agregar Repuesto
             </a>
-        </div>
+        </div> {% endcomment %}
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover">

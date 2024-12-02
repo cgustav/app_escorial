@@ -5,3 +5,4 @@ django-crispy-forms
 crispy-bootstrap5
 boto3
 django-storages
+django-ipware==2.1.0

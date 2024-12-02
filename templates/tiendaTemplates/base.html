@@ -11,8 +11,8 @@
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row mb-5">
+    <div class="container-fluid p-0 m-0">
+        <div class="row">
             <div class="col">
                 <nav class="navbar navbar-expand-lg bg-body-tertiary">
                     <div class="container-fluid">
@@ -44,6 +44,22 @@
                                         <li>
                                             <a class="dropdown-item" href="{% url 'crearRepuestos' %}">
                                                 <i class="fas fa-plus me-2"></i>Añadir Nuevo
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'lista_operaciones_stock' %}">
+                                                <i class="fas fa-history me-2"></i>Registro de Stock
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-success" href="{% url 'registro_operacion_stock' 'INGRESO' %}">
+                                                <i class="fas fa-plus-circle me-2"></i>Ingreso de Existencias
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-warning" href="{% url 'registro_operacion_stock' 'MERMA' %}">
+                                                <i class="fas fa-minus-circle me-2"></i>Registro de Merma
                                             </a>
                                         </li>
                                     </ul>

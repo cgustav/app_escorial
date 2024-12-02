@@ -51,6 +51,29 @@ SECURE_SSL_REDIRECT = False   # Por defecto False
 # DEBUG = os.getenv('DB_ENGINE')
 DEBUG = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'tiendaApp': {  # Reemplaza con el nombre de tu app
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
 if os.environ.get('DJANGO_ENVIRONMENT') == 'production':
     
     DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'storages.backends.s3boto3.S3Boto3Storage') 

@@ -5,6 +5,36 @@
 {% load crispy_forms_tags %}
 
 {% block contenido %}
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="cancelarPedidoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Cancelación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea cancelar este pedido?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Esta acción restituirá el stock de todos los productos y no podrá ser revertida.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <form method="post" action="{% url 'cambiar_estado_pedido' pedido.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="estado" value="CANCELADO">
+                    <button type="submit" class="btn btn-danger">
+                        Confirmar Cancelación
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-md-8">
@@ -115,7 +145,8 @@
                 <div class="card-body">
                     <form method="POST" action="{% url 'cambiar_estado_pedido' pedido.id %}">
                         {% csrf_token %}
-                        <select name="estado" class="form-select mb-3">
+                        {% comment %} <select name="estado" class="form-select mb-3"> {% endcomment %}
+                        <select name="estado" class="form-select" {% if pedido.estado == 'CANCELADO' %}disabled{% endif %}>
                             {% for value, label in pedido.ESTADO_CHOICES %}
                             <option value="{{ value }}" {% if pedido.estado == value %}selected{% endif %}>
                                 {{ label }}
@@ -131,4 +162,23 @@
         </div>
     </div>
 </div>
+
+<!-- Script para manejar el modal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const estadoSelect = document.querySelector('select[name="estado"]');
+        
+        estadoSelect.addEventListener('change', function(e) {
+            if (e.target.value === 'CANCELADO') {
+                e.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('cancelarPedidoModal'));
+                modal.show();
+                // Restaurar valor anterior
+                e.target.value = '{{ pedido.estado }}';
+            } else {
+                e.target.form.submit();
+            }
+        });
+    });
+</script>
 {% endblock %}

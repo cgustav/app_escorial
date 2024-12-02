@@ -1,0 +1,325 @@
+{% extends "tiendaTemplates/base.html" %}
+{% load static %}
+{% block contenido %}
+
+<div class="container-fluid py-4">
+   <div class="row">
+       <div class="col-12">
+           <div class="card shadow-sm">
+               <!-- Header -->
+               <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                   <h2 class="h4 mb-0">Registro de Operaciones</h2>
+                   <div class="d-flex gap-2">
+                       <a href="{% url 'registro_operacion_stock' 'INGRESO' %}" class="btn btn-success">
+                           <i class="fas fa-plus-circle me-2"></i>Ingreso
+                       </a>
+                       <a href="{% url 'registro_operacion_stock' 'MERMA' %}" class="btn btn-warning">
+                           <i class="fas fa-minus-circle me-2"></i>Merma
+                       </a>
+                   </div>
+               </div>
+
+               <!-- Filtros -->
+               <div class="card-body border-bottom">
+                   <form id="searchForm" method="get" class="row g-3">
+                       <!-- Búsqueda -->
+                       <div class="col-12 col-md-4">
+                           <div class="input-group">
+                               <span class="input-group-text bg-light">
+                                   <i class="fas fa-search"></i>
+                               </span>
+                               {{ form.query }}
+                           </div>
+                       </div>
+
+                       <!-- Tipo de operación -->
+                       <div class="col-12 col-sm-6 col-md-3">
+                           {{ form.tipo_operacion }}
+                       </div>
+
+                       <!-- Fechas -->
+                       <div class="col-12 col-sm-6 col-md-2">
+                           {{ form.fecha_desde }}
+                           <div class="form-text">Desde</div>
+                       </div>
+                       <div class="col-12 col-sm-6 col-md-2">
+                           {{ form.fecha_hasta }}
+                           <div class="form-text">Hasta</div>
+                       </div>
+
+                       <!-- Botón limpiar -->
+                       <div class="col-12 col-sm-6 col-md-1">
+                           <button type="button" id="clearFilters" class="btn btn-outline-secondary w-100">
+                               <i class="fas fa-times"></i>
+                           </button>
+                           <div class="form-text">Limpiar</div>
+                       </div>
+                   </form>
+               </div>
+
+               <!-- Tabla de resultados -->
+               <div class="table-responsive">
+                   <table class="table table-hover align-middle mb-0">
+                       <thead>
+                           <tr>
+                               <th>Fecha</th>
+                               <th>Tipo</th>
+                               <th>Repuesto</th>
+                               <th>Cantidad</th>
+                               <th>Usuario</th>
+                               <th>IP</th>
+                               <th>Motivo</th>
+                               <th>Documento</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           {% for op in operaciones %}
+                           <tr>
+                               <td class="text-nowrap">{{ op.fecha_operacion|date:"d/m/Y H:i" }}</td>
+                               <td>
+                                   {% comment %} <span class="badge {% if op.tipo_operacion == 'INGRESO' %}bg-success{% else %}bg-warning{% endif %}">
+                                       {{ op.get_tipo_operacion_display }}
+                                   </span> {% endcomment %}
+                                   <span class="badge 
+                                    {% if op.tipo_operacion == 'INGRESO' %}badge-ingreso
+                                    {% elif op.tipo_operacion == 'MERMA' %}badge-merma
+                                    {% elif op.tipo_operacion == 'RESTITUCION' %}badge-restitucion
+                                    {% elif op.tipo_operacion == 'PEDIDO' %}badge-ajuste
+                                    {% else %}badge-secondary{% endif %}">
+                                    {{ op.get_tipo_operacion_display }}
+                                    </span>
+                               </td>
+                               <td>{{ op.repuesto.nombre }}</td>
+                               <td>{{ op.cantidad }}</td>
+                               <td>{{ op.usuario.username }}</td>
+                               <td class="text-nowrap">{{ op.ip_address }}</td>
+                               {% comment %} <td class="text-wrap-cell" data-bs-toggle="tooltip" title="{{ op.motivo }}">
+                                {{ op.motivo }}
+                               </td> {% endcomment %}
+                               <td>
+                                    <div class="motivo-cell">
+                                        <div class="motivo-content collapsed">{{ op.motivo }}</div>
+                                        <button class="btn btn-link btn-sm p-0 toggle-motivo" type="button">
+                                            <i class="fas fa-expand-alt"></i>
+                                        </button>
+                                    </div>
+                               </td>
+                               <td>{{ op.documento_referencia|default:"-" }}</td>
+                           </tr>
+                           {% empty %}
+                           <tr>
+                               <td colspan="8" class="text-center py-4">
+                                   <div class="text-muted">
+                                       <i class="fas fa-info-circle me-2"></i>No hay operaciones registradas
+                                   </div>
+                               </td>
+                           </tr>
+                           {% endfor %}
+                       </tbody>
+                   </table>
+               </div>
+
+               <!-- Paginación -->
+               {% if page_obj.paginator.num_pages > 1 %}
+               <div class="card-footer">
+                   <nav aria-label="Navegación de páginas">
+                       <ul class="pagination justify-content-center mb-0">
+                           {% if page_obj.has_previous %}
+                           <li class="page-item">
+                               <a class="page-link" href="?page=1&{{ query_params }}">&laquo; Primera</a>
+                           </li>
+                           <li class="page-item">
+                               <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ query_params }}">Anterior</a>
+                           </li>
+                           {% endif %}
+
+                           <li class="page-item disabled">
+                               <span class="page-link">
+                                   Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                               </span>
+                           </li>
+
+                           {% if page_obj.has_next %}
+                           <li class="page-item">
+                               <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query_params }}">Siguiente</a>
+                           </li>
+                           <li class="page-item">
+                               <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ query_params }}">Última &raquo;</a>
+                           </li>
+                           {% endif %}
+                       </ul>
+                   </nav>
+               </div>
+               {% endif %}
+           </div>
+       </div>
+   </div>
+</div>
+
+<style>
+.card {
+   border: none;
+   border-radius: 8px;
+}
+
+.table {
+   margin-bottom: 0;
+}
+
+.table th {
+   background-color: #f8f9fa;
+   border-bottom: 2px solid #dee2e6;
+}
+
+.badge {
+   font-weight: 500;
+   padding: 0.5em 0.8em;
+}
+
+.badge-ingreso {
+    background-color: #28a745; /* Verde */
+    color: #fff;
+}
+
+.badge-merma {
+    background-color: #ffc107; /* Amarillo */
+    color: #000;
+}
+
+.badge-restitucion {
+    background-color: #17a2b8; /* Celeste */
+    color: #fff;
+}
+
+.badge-ajuste {
+    background-color: #6f42c1; /* Morado */
+    color: #fff;
+}
+
+/* Responsive ajustments */
+@media (max-width: 768px) {
+   .table {
+       font-size: 0.875rem;
+   }
+   
+   .badge {
+       font-size: 0.75rem;
+   }
+   
+   .card-header {
+       flex-direction: column;
+       gap: 1rem;
+   }
+   
+   .card-header .d-flex {
+       width: 100%;
+   }
+   
+   .card-header .btn {
+       flex: 1;
+   }
+}
+
+.motivo-cell {
+    position: relative;
+    max-width: 300px;
+}
+
+.motivo-content {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+}
+
+.motivo-content.expanded {
+        white-space: normal;
+        overflow: visible;
+        background-color: white;
+        position: absolute;
+        z-index: 1000;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toggle-motivo {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-left: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+   const form = document.querySelector('#searchForm');
+   const dateInputs = form.querySelectorAll('input[type="date"]');
+   const clearButton = document.querySelector('#clearFilters');
+
+
+    document.querySelectorAll('.toggle-motivo').forEach(button => {
+        button.addEventListener('click', function() {
+            const content = this.previousElementSibling;
+            const icon = this.querySelector('i');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+                icon.classList.remove('fa-expand-alt');
+                icon.classList.add('fa-compress-alt');
+            } else {
+                content.classList.add('collapsed');
+                content.classList.remove('expanded');
+                icon.classList.add('fa-expand-alt');
+                icon.classList.remove('fa-compress-alt');
+            }
+        });
+    });
+
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.motivo-cell')) {
+            document.querySelectorAll('.motivo-content.expanded').forEach(content => {
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+                const icon = content.nextElementSibling.querySelector('i');
+                icon.classList.add('fa-expand-alt');
+                icon.classList.remove('fa-compress-alt');
+            });
+        }
+    });
+
+   // Actualizar en cambios de select y búsqueda
+   form.querySelectorAll('select, input[type="text"]').forEach(element => {
+       element.addEventListener('change', function() {
+           form.submit();
+       });
+   });
+
+   // Actualizar en cambios de fecha
+   dateInputs.forEach(input => {
+       input.addEventListener('change', function() {
+           const fechaDesde = form.querySelector('[name="fecha_desde"]').value;
+           const fechaHasta = form.querySelector('[name="fecha_hasta"]').value;
+
+           if (fechaDesde && fechaHasta && fechaDesde > fechaHasta) {
+               alert('La fecha inicial no puede ser posterior a la fecha final');
+               this.value = '';
+               return;
+           }
+
+           form.submit();
+       });
+
+   });
+
+   // Limpiar filtros
+   clearButton.addEventListener('click', function(e) {
+       e.preventDefault();
+       form.reset();
+       window.location.href = window.location.pathname;
+   });
+});
+</script>
+
+{% endblock %}

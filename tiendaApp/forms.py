@@ -2,7 +2,7 @@ from dataclasses import fields
 # from socket import fromshare
 # from tkinter.tix import Select
 from django import forms
-from tiendaApp.models import Tipo,Repuesto, Pedido, PedidoItem
+from tiendaApp.models import Tipo,Repuesto, Pedido, PedidoItem, StockOperation
 from django.core.exceptions import ValidationError
 
 import datetime
@@ -71,9 +71,11 @@ class RepuestoForm(forms.ModelForm):
     
     # TODO REVIEW THIS AFTER REFACTOR FROM cantidad to stock
     stock = forms.IntegerField(
+        required=False,
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingrese stock disponible',
+            'readonly': 'readonly',
+            'placeholder': 'Stock disponible',
             'min': '0',
             'max': '99999'
         }),
@@ -84,7 +86,7 @@ class RepuestoForm(forms.ModelForm):
     class Meta:
         model = Repuesto
         fields = '__all__'
-        exclude =['fotografia']
+        exclude =['fotografia', 'stock']
         
     def clean_precio(self):
         precio = self.cleaned_data.get('precio')
@@ -108,15 +110,6 @@ class RepuestoForm(forms.ModelForm):
                 raise ValidationError("Solo se permiten archivos JPEG y PNG")
         return foto
 
-# class SearchForm(forms.Form):
-#     query = forms.CharField(
-#         required=False,
-#         widget=forms.TextInput(attrs={
-#             'class': 'form-control',
-#             'placeholder': 'Buscar insumo...'
-#         })
-#     )
-    # query = forms.CharField(label='Buscar', max_length=100)
 
 class SearchForm(forms.Form):
     query = forms.CharField(
@@ -143,6 +136,58 @@ class SearchForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
+class StockOperationForm(forms.ModelForm):
+    class Meta:
+        model = StockOperation
+        fields = ['repuesto', 'cantidad', 'motivo', 'documento_referencia']
+        
+    def __init__(self, *args, **kwargs):
+        self.tipo_operacion = kwargs.pop('tipo_operacion', None)
+        self.user = kwargs.pop('user', None)
+        self.ip_address = kwargs.pop('ip_address', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.tipo_operacion = self.tipo_operacion
+        instance.usuario = self.user
+        instance.ip_address = self.ip_address
+        if commit:
+            instance.save()
+        return instance
+    
+    
+class StockOperationSearchForm(forms.Form):
+    query = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Buscar por repuesto o motivo...'
+        })
+    )
+    tipo_operacion = forms.ChoiceField(
+        choices=[('', 'Todos los tipos')] + StockOperation.OPERATION_TYPES,
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    fecha_desde = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    fecha_hasta = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    
 
 class PedidoForm(forms.ModelForm):
     class Meta:
@@ -207,7 +252,7 @@ class PedidoItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filtrar solo repuestos con stock disponible
-        self.fields['repuesto'].queryset = self.fields['repuesto'].queryset.filter(cantidad__gt=0)
+        self.fields['repuesto'].queryset = self.fields['repuesto'].queryset.filter(stock__gt=0)
         self.fields['repuesto'].widget.attrs.update({'class': 'form-select'})
 
     def clean(self):
@@ -218,7 +263,7 @@ class PedidoItemForm(forms.ModelForm):
         if repuesto and cantidad:
             # Obtener el valor numérico de la cantidad del repuesto
             # stock_disponible = getattr(repuesto.cantidad, 'valor', repuesto.cantidad)
-            stock_disponible = repuesto.cantidad.get_valor_numerico()
+            stock_disponible = repuesto.stock
 
             if cantidad <= 0:
                 raise ValidationError("La cantidad debe ser mayor a 0")

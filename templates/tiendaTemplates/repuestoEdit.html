@@ -105,6 +105,9 @@
                                 <div class="form-group">
                                     {{ form.stock.label_tag }}
                                     {{ form.stock|addclass:"form-control" }}
+                                    <small class="form-text text-muted">
+                                        El stock solo puede ser modificado mediante operaciones de ingreso o merma.
+                                    </small>
                                     {% if form.stock.errors %}
                                     <div class="invalid-feedback d-block">
                                         {{ form.stock.errors }}

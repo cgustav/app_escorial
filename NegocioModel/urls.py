@@ -52,12 +52,21 @@ urlpatterns = [
     # path('repuestoEditado/<int:repuesto_id>/', staff_member_required(vistas.editar_repuesto), name='repuestoEditado'),
     # path('repuestoDel/<int:repuesto_id>/', staff_member_required(vistas.eliminar_repuesto),name='eliminarRepuesto'),
 
+    # REPUESTOS
+    # ===================
     path('repuestos/', vistas.todos_repuesto, name='repuestos'),
     path('repuestoAdd/', vistas.crear_repuesto, name='crearRepuestos'),
     path('repuestoEdit/<int:repuesto_id>/', vistas.cargar_editar_repuesto, name='editarRepuesto'),
     path('repuestoEditado/<int:repuesto_id>/', vistas.editar_repuesto, name='repuestoEditado'),
     path('repuestoDel/<int:repuesto_id>/', vistas.eliminar_repuesto, name='eliminarRepuesto'),
     
+    # STOCK
+    # ===================
+    path('stock/operacion/<str:tipo_operacion>/', vistas.registro_operacion_stock, name='registro_operacion_stock'),
+    path('stock/operaciones/', vistas.lista_operaciones_stock, name='lista_operaciones_stock'),
+    
+    # PEDIDOS
+    # ===================
     path('pedidos/', vistas.lista_pedidos, name='lista_pedidos'),
     path('pedidos/crear/', vistas.crear_pedido, name='crear_pedido'),
     path('pedidos/<int:pedido_id>/', vistas.detalle_pedido, name='detalle_pedido'),

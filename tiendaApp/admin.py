@@ -23,7 +23,7 @@ class RepuestoAdmin(admin.ModelAdmin):
     ]
     list_filter = ['tipo']
     search_fields = ['nombre', 'codigoRepuesto']
-    readonly_fields = ['codigoRepuesto', 'creado']
+    readonly_fields = ['codigoRepuesto', 'stock', 'creado']
     ordering = ['nombre']
 
 
