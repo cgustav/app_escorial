@@ -49,7 +49,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Resultados de búsqueda -->
     {% if query %}
     <div class="alert alert-info">
@@ -111,9 +111,18 @@
                                     <a class="btn btn-warning btn-sm" href="{% url 'editarRepuesto' repuesto.id %}">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a class="btn btn-danger btn-sm" href="{% url 'eliminarRepuesto' repuesto.id %}">
+                                    {% comment %} <a class="btn btn-danger btn-sm" href="{% url 'eliminarRepuesto' repuesto.id %}">
                                         <i class="fas fa-trash"></i>
+                                    </a> {% endcomment %}
+                                    {% if repuesto.activo %}
+                                    <a class="btn btn-danger btn-sm" href="{% url 'desactivarRepuesto' repuesto.id %}">
+                                        <i class="fas fa-times-circle"></i> Desactivar
                                     </a>
+                                    {% else %}
+                                    <a class="btn btn-success btn-sm" href="{% url 'activarRepuesto' repuesto.id %}">
+                                        <i class="fas fa-check-circle"></i> Activar
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -134,10 +143,10 @@
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page=1">&laquo; Primera</a>
+                        <a class="page-link" href="?page=1{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}{% if request.GET.tipo_operacion %}&tipo_operacion={{ request.GET.tipo_operacion }}{% endif %}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">&laquo; Primera</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}{% if request.GET.tipo_operacion %}&tipo_operacion={{ request.GET.tipo_operacion }}{% endif %}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">Anterior</a>
                     </li>
                     {% endif %}
 
@@ -149,10 +158,10 @@
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}{% if request.GET.tipo_operacion %}&tipo_operacion={{ request.GET.tipo_operacion }}{% endif %}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">Siguiente</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}{% if request.GET.tipo_operacion %}&tipo_operacion={{ request.GET.tipo_operacion }}{% endif %}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">Última &raquo;</a>
                     </li>
                     {% endif %}
                 </ul>

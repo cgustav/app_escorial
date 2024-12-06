@@ -5,12 +5,20 @@
 
 <div class="container-fluid py-4">
     <div class="form-container">
+
         <!-- Header -->
         <div class="header">
-            <div class="title">
+            {% if es_ingreso %}
+            <div class="title bg-success">
                 <i class="fas fa-plus-circle me-2"></i>
                 Ingreso de Existencias
             </div>
+            {% else %}
+            <div class="title bg-warning">
+                <i class="fas fa-minus-circle me-2"></i>
+                Registro de Merma
+            </div>
+            {% endif %}
             <a href="{% url 'lista_operaciones_stock' %}" class="btn btn-light">
                 <i class="fas fa-list me-2"></i>Ver Registro
             </a>
@@ -21,9 +29,25 @@
             <form method="post" class="needs-validation" novalidate>
                 {% csrf_token %}
                 {% if form.non_field_errors %}
-                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 {% endif %}
-
+                {% comment %} {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %} {% endcomment %}
 
                 <div class="row g-3">
                     <!-- Repuesto -->
@@ -115,6 +139,17 @@
 </div>
 
 <style>
+
+.alert {
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+}
 /* Contenedor principal */
 .form-container {
     max-width: 1000px;
@@ -125,14 +160,19 @@
 }
 
 /* Header */
+
 .header {
-    background: var(--bs-success);
+    background: var(--header-bg);
     color: white;
     padding: 1rem 1.5rem;
     border-radius: 8px 8px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+:root {
+    --header-bg: {{ es_ingreso|yesno:'var(--bs-success),var(--bs-warning)' }};
 }
 
 .title {
@@ -249,5 +289,7 @@ textarea.form-control {
     border-color: #28a745;
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
+
+
 </style>
 {% endblock %}

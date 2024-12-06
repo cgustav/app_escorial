@@ -58,7 +58,10 @@ urlpatterns = [
     path('repuestoAdd/', vistas.crear_repuesto, name='crearRepuestos'),
     path('repuestoEdit/<int:repuesto_id>/', vistas.cargar_editar_repuesto, name='editarRepuesto'),
     path('repuestoEditado/<int:repuesto_id>/', vistas.editar_repuesto, name='repuestoEditado'),
-    path('repuestoDel/<int:repuesto_id>/', vistas.eliminar_repuesto, name='eliminarRepuesto'),
+    # path('repuestoDel/<int:repuesto_id>/', vistas.eliminar_repuesto, name='eliminarRepuesto'),
+    
+    path('repuesto/<int:repuesto_id>/desactivar/', vistas.desactivar_repuesto, name='desactivarRepuesto'),
+    path('repuesto/<int:repuesto_id>/activar/', vistas.activar_repuesto, name='activarRepuesto'),
     
     # STOCK
     # ===================

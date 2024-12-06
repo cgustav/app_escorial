@@ -148,6 +148,13 @@ class StockOperationForm(forms.ModelForm):
         self.ip_address = kwargs.pop('ip_address', None)
         super().__init__(*args, **kwargs)
 
+        # Filtrar solo repuestos activos y con stock > 0 para mermas
+        if self.tipo_operacion == 'MERMA':
+            self.fields['repuesto'].queryset = Repuesto.activos.filter(stock__gt=0)
+        else:
+            self.fields['repuesto'].queryset = Repuesto.activos.all()
+            
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.tipo_operacion = self.tipo_operacion
@@ -252,7 +259,10 @@ class PedidoItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filtrar solo repuestos con stock disponible
-        self.fields['repuesto'].queryset = self.fields['repuesto'].queryset.filter(stock__gt=0)
+        self.fields['repuesto'].queryset = Repuesto.objects.filter(
+            activo=True,
+            stock__gt=0
+        )
         self.fields['repuesto'].widget.attrs.update({'class': 'form-select'})
 
     def clean(self):

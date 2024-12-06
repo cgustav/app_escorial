@@ -118,6 +118,36 @@
                     </tbody>
                 </table>
             </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <nav aria-label="Navegación de páginas" class="mt-4">
+               <ul class="pagination justify-content-center">
+                   {% if page_obj.has_previous %}
+                   <li class="page-item">
+                       <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo; Primera</a>
+                   </li>
+                   <li class="page-item">
+                       <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+                   </li>
+                   {% endif %}
+            
+                   <li class="page-item active">
+                       <span class="page-link">
+                           Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                       </span>
+                   </li>
+            
+                   {% if page_obj.has_next %}
+                   <li class="page-item">
+                       <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+                   </li>
+                   <li class="page-item">
+                       <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Última &raquo;</a>
+                   </li>
+                   {% endif %}
+               </ul>
+            </nav>
+            {% endif %}
         </div>
     </div>
 </div>

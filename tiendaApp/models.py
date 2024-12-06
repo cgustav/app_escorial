@@ -27,8 +27,16 @@ class Tipo(models.Model):
         verbose_name = 'tipo'
         verbose_name_plural = 'Tipos'
 
+# En models.py, clase Repuesto, añadir un manager para filtrar por defecto
+class RepuestoManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(activo=True)
 
 class Repuesto(models.Model):
+    
+    objects = models.Manager()  # Manager por defecto
+    activos = RepuestoManager()  # Manager personalizado
+    
     codigoRepuesto = models.CharField(max_length=20,verbose_name='Código del Repuesto', editable=False)
     nombre = models.CharField(max_length=160,verbose_name='Nombre')
     tipo = models.ForeignKey(Tipo,null=False,on_delete=models.RESTRICT)
@@ -49,9 +57,10 @@ class Repuesto(models.Model):
             MinValueValidator(0, message="El stock no puede ser negativo")
         ],
         editable=False  # Esto previene la edición en el admin de Django
-
     )
     
+    activo = models.BooleanField(default=True)  # Nuevo campo
+
     creado = models.DateTimeField(auto_now=True,editable=False)
     
     # Genera una ruta unica para imagenes /(BucketS3)
@@ -179,12 +188,24 @@ class StockOperation(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     ip_address = models.GenericIPAddressField()
     
+    # def clean(self):
+    #     if self.tipo_operacion == 'MERMA':
+    #         if self.cantidad > self.repuesto.stock:
+    #             raise ValidationError(
+    #                 f"No puede registrar una merma mayor al stock disponible ({self.repuesto.stock})"
+    #             )
+    
     def clean(self):
         if self.tipo_operacion == 'MERMA':
+            
+            if not self.repuesto.activo:
+                raise ValidationError("No se pueden registrar mermas de repuestos inactivos")
             if self.cantidad > self.repuesto.stock:
-                raise ValidationError(
-                    f"No puede registrar una merma mayor al stock disponible ({self.repuesto.stock})"
-                )
+                raise ValidationError({
+                    '__all__': f'No puede registrar una merma mayor al stock disponible ({self.repuesto.stock} unidades)'
+                })
+            # raise ValidationError(f"No puede registrar una merma mayor al stock disponible ({self.repuesto.stock})")
+            # if self.tipo_operacion == 'MERMA' and self.cantidad > self.repuesto.stock:
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -313,7 +334,7 @@ class Pedido(models.Model):
                     
         return queryset
     
-    @classmethod
+    # @classmethod
     def cancelar_pedido(self, usuario, ip_address):
         """Cancela el pedido y restituye el stock"""
         if self.estado == 'CANCELADO':

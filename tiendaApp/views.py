@@ -28,10 +28,6 @@ def crear_repuesto(request):
         form = RepuestoForm(request.POST,request.FILES)
         if form.is_valid():
             repuesto = form.save(commit=False)
-
-            # Verificar si se proporcionó una nueva imagen
-            # if not repuesto.fotografia:
-            #     repuesto.fotografia = 'media/tractor.png'
             
             # Manejar la imagen
             if 'fotografia' in request.FILES:
@@ -69,27 +65,6 @@ def todos_repuesto(request):
         orden=orden
     )
     
-    
-    # Aplicar filtro por tipo independientemente de la query
-    # tipo_seleccionado = request.GET.get('tipo')
-    # if tipo_seleccionado:
-    #     repuestos = repuestos.filter(tipo_id=tipo_seleccionado)
-    
-    # # Aplicar ordenamiento independientemente de la query
-    # orden = request.GET.get('orden', 'nombre')
-    # if orden:
-    #     if orden in ['-precio', 'precio', '-nombre', 'nombre']:
-    #         repuestos = repuestos.order_by(orden)
-    
-    
-    # Ordenar los resultados
-    # orden = request.GET.get('orden', 'nombre')
-    # if orden:
-    #     if orden == '-precio':
-    #         repuestos = repuestos.order_by(orden)
-    #     else:
-    #         repuestos = repuestos.order_by('nombre')
-    
 
     # Paginador de repuestos
     paginator = Paginator(repuestos, 10)  # 10 items por página
@@ -97,25 +72,10 @@ def todos_repuesto(request):
 
 
     tipos = Tipo.objects.all()
-    # tipo_seleccionado = request.GET.get('tipo')
-    
-    # if tipo_seleccionado:
-    #     repuestos = repuestos.filter(tipo_id=tipo_seleccionado)
-
-    # cantidades = Cantidad.objects.all()
     
     # Código de búsqueda
     query = None
     results = []
-
-    # if 'query' in request.GET:
-    #     form = SearchForm(request.GET)
-    #     if form.is_valid():
-    #         query = form.cleaned_data['query']
-    #         repuestos = Repuesto.objects.filter(nombre__icontains=query)
-    # else:
-    #     form = SearchForm()
-
 
     # form = SearchForm(initial={'query': query})
     # Preparar el formulario con los valores actuales
@@ -174,17 +134,41 @@ def editar_repuesto(request,repuesto_id):
         'repuesto': repuesto
     })
 
+# NOTE: DEPRECADO
+# @login_required
+# @user_passes_test(staff_check, login_url='login')
+# def eliminar_repuesto(request, repuesto_id):
+#     repuesto = get_object_or_404(Repuesto, id=repuesto_id)
+
+#     if request.method == 'POST':
+#         repuesto.delete()
+#         return redirect('/repuestos/')
+
+#     return render(request, 'tiendaTemplates/repuestoDel.html', {'repuesto':repuesto})
+
 @login_required
 @user_passes_test(staff_check, login_url='login')
-def eliminar_repuesto(request, repuesto_id):
+def desactivar_repuesto(request, repuesto_id):
     repuesto = get_object_or_404(Repuesto, id=repuesto_id)
+    if repuesto.activo:
+        repuesto.activo = False
+        repuesto.save()
+        messages.success(request, f"El repuesto {repuesto.nombre} ha sido desactivado.")
+    else:
+        messages.info(request, f"El repuesto {repuesto.nombre} ya estaba desactivado.")
+    return redirect('repuestos')
 
-    if request.method == 'POST':
-        repuesto.delete()
-        return redirect('/repuestos/')
-
-    return render(request, 'tiendaTemplates/repuestoDel.html', {'repuesto':repuesto})
-
+@login_required
+@user_passes_test(staff_check, login_url='login')
+def activar_repuesto(request, repuesto_id):
+    repuesto = get_object_or_404(Repuesto, id=repuesto_id)
+    if not repuesto.activo:
+        repuesto.activo = True
+        repuesto.save()
+        messages.success(request, f"El repuesto {repuesto.nombre} ha sido activado.")
+    else:
+        messages.info(request, f"El repuesto {repuesto.nombre} ya estaba activo.")
+    return redirect('repuestos')
 
 
 @login_required
@@ -223,7 +207,7 @@ def registro_operacion_stock(request, tipo_operacion):
     # Filtrar los repuestos según el tipo de operación
     if tipo_operacion == 'MERMA':
         # Para mermas, solo mostrar repuestos con stock > 0
-        form.fields['repuesto'].queryset = Repuesto.objects.filter(stock__gt=0)
+        form.fields['repuesto'].queryset = Repuesto.activos.filter(stock__gt=0)
     
     context = {
         'form': form,
@@ -303,8 +287,6 @@ def lista_operaciones_stock(request):
 @login_required
 @user_passes_test(staff_check)
 def lista_pedidos(request):
-    
-    
     # Obtener parámetros de búsqueda y filtrado
     query = request.GET.get('query', '')
     estado = request.GET.get('estado')
@@ -412,28 +394,6 @@ def eliminar_item_pedido(request, item_id):
             
         # Restaurar stock y registrar operación si el pedido no está cancelado
         if item.pedido.estado != 'CANCELADO':
-            # Crear operación de stock tipo RESTITUCION
-            # StockOperation.objects.create(
-            #     repuesto=item.repuesto,
-            #     cantidad=item.cantidad,
-            #     tipo_operacion='RESTITUCION',
-            #     motivo=f'Eliminación de item en pedido #{item.pedido.id}',
-            #     usuario=request.user,
-            #     ip_address=get_client_ip(request)[0],
-            #     documento_referencia=''
-            # )
-            
-            # Restaurar stock
-            # item.repuesto.stock += item.cantidad
-            
-            # Declarar operación autorizada
-            # item.repuesto._stock_operation = True  
-
-            # if item.repuesto.stock > 4294967295:
-            #     raise ValidationError("El stock no puede exceder el máximo permitido.")
-            
-            # item.repuesto.save()
-            
             item.delete()
             messages.success(request, 'Item eliminado del pedido')
         
