@@ -1,8 +1,9 @@
 from django.contrib import admin
-
-# Register your models here.
+from django.contrib.auth.models import Permission
 from tiendaApp.models import Tipo,Repuesto
 
+# Registrar Permission
+admin.site.register(Permission)
 @admin.register(Tipo)
 class TipoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'creado']
