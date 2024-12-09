@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tiendaApp', '0012_repuesto_activo'),
+        ('tiendaApp', '0011_alter_stockoperation_tipo_operacion'),
     ]
 
     operations = [
