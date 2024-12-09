@@ -11,16 +11,24 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Añadir el campo documento_referencia existente
+        migrations.AddField(
+            model_name='stockoperation',
+            name='documento_referencia',
+            field=models.CharField(blank=True, help_text='Número de documento asociado (ej: factura, guía de despacho)', max_length=50),
+        ),
+
+        # Añadir el campo activo
+        migrations.AddField(
+            model_name='repuesto',
+            name='activo',
+            field=models.BooleanField(default=True),
+        ),
+
         # Modificamos el campo cantidad para agregar el validador
         migrations.AlterField(
             model_name='stockoperation',
             name='cantidad',
             field=models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1, message='La cantidad debe ser mayor a 0')]),
-        ),
-        # Actualizamos el campo documento_referencia existente
-        migrations.AlterField(
-            model_name='stockoperation',
-            name='documento_referencia',
-            field=models.CharField(blank=True, help_text='Número de documento asociado (ej: factura, guía de despacho)', max_length=50),
         ),
     ]
