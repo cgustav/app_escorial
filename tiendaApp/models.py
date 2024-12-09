@@ -24,8 +24,34 @@ class Tipo(models.Model):
 
     class Meta:
         db_table = 'tipo'
-        verbose_name = 'tipo'
-        verbose_name_plural = 'Tipos'
+        verbose_name = 'Tipo de Repuesto'
+        verbose_name_plural = 'Tipos de Repuestos'
+        ordering = ['nombre']
+
+        # Índices para optimizar búsquedas
+        indexes = [
+            models.Index(fields=['nombre']),
+            models.Index(fields=['creado']),
+        ]
+
+        # Permisos específicos para el modelo
+        permissions = [
+            ("can_view_all_tipos", "Puede ver todos los tipos de repuestos"),
+            ("can_create_tipos", "Puede crear tipos de repuestos"),
+            ("can_edit_tipos", "Puede editar tipos de repuestos"),
+            ("can_delete_tipos", "Puede eliminar tipos de repuestos"),
+            ("can_manage_tipos", "Puede gestionar completamente los tipos"),
+            ("can_export_tipos", "Puede exportar tipos de repuestos"),
+        ]
+
+        # Constraints para garantizar integridad
+        constraints = [
+            # Asegurar nombres únicos
+            models.UniqueConstraint(
+                fields=['nombre'],
+                name='unique_tipo_nombre'
+            ),
+        ]
 
 # En models.py, clase Repuesto, añadir un manager para filtrar por defecto
 class RepuestoManager(models.Manager):
@@ -148,6 +174,56 @@ class Repuesto(models.Model):
         verbose_name_plural = 'Repuestos'
         ordering = ['nombre']
 
+        # Índices para optimizar búsquedas frecuentes
+        indexes = [
+            models.Index(fields=['codigoRepuesto']),
+            models.Index(fields=['nombre']),
+            # Índice compuesto para búsquedas comunes
+            models.Index(fields=['activo', 'stock'], name='repuesto_search_idx'),
+        ]
+
+        # Permisos detallados para el modelo
+        permissions = [
+            # Permisos de visualización
+            ("can_view_all_repuestos", "Puede ver todos los repuestos"),
+            ("can_view_stock", "Puede ver el stock de repuestos"),
+            ("can_view_prices", "Puede ver los precios"),
+            
+            # Permisos de gestión básica
+            ("can_create_repuestos", "Puede crear repuestos"),
+            ("can_edit_repuestos", "Puede editar repuestos"),
+            ("can_delete_repuestos", "Puede eliminar repuestos"),
+            
+            # Permisos de gestión avanzada
+            ("can_manage_stock", "Puede gestionar el stock"),
+            ("can_modify_prices", "Puede modificar precios"),
+            ("can_activate_repuestos", "Puede activar/desactivar repuestos"),
+            ("can_manage_images", "Puede gestionar imágenes de repuestos"),
+            
+            # Permisos de reportes y exportación
+            ("can_export_repuestos", "Puede exportar repuestos"),
+            ("can_view_reports", "Puede ver reportes de repuestos"),
+            ("can_view_stock_history", "Puede ver historial de stock"),
+        ]
+
+        # Constraints para garantizar integridad de datos
+        constraints = [
+            # Asegurar código único
+            models.UniqueConstraint(
+                fields=['codigoRepuesto'],
+                name='unique_repuesto_codigo'
+            ),
+            # Asegurar precio positivo
+            models.CheckConstraint(
+                check=models.Q(precio__gt=0),
+                name='positive_precio_repuesto'
+            ),
+            # Asegurar stock no negativo
+            models.CheckConstraint(
+                check=models.Q(stock__gte=0),
+                name='non_negative_stock'
+            ),
+        ]
 
 # NOTE SIGNAL - Previene modificaciones no autorizadas de otras entidades
 # que modifiquen Modelo.stock
@@ -353,16 +429,51 @@ class Pedido(models.Model):
             )
             
             print("item cantidad ${item.cantidad}")
-            # Actualizar stock
-            # item.repuesto.stock += item.cantidad
-            # item.repuesto._stock_operation = True  
-            # item.repuesto.save()
         
         self.estado = 'CANCELADO'
         self.save()
 
+
+
     def __str__(self):
         return f"Pedido #{self.id} - {self.cliente}"
+    
+    class Meta:
+        db_table = 'tiendaApp_pedido'
+        verbose_name = 'Pedido'
+        verbose_name_plural = 'Pedidos'
+        ordering = ['-fecha_creacion']  # Ordenar por fecha de creación, más reciente primero
+        
+        # Índices para mejorar el rendimiento de las búsquedas
+        indexes = [
+            models.Index(fields=['estado']),
+            models.Index(fields=['fecha_creacion']),
+            models.Index(fields=['cliente']),
+        ]
+        
+        # Permisos específicos para el modelo
+        permissions = [
+            ("can_view_all_pedidos", "Puede ver todos los pedidos"),
+            ("can_create_pedidos", "Puede crear pedidos"),
+            ("can_edit_pedidos", "Puede editar pedidos"),
+            ("can_delete_pedidos", "Puede eliminar pedidos"),
+            ("can_cancel_pedidos", "Puede cancelar pedidos"),
+            ("can_confirm_pedidos", "Puede confirmar pedidos"),
+            ("can_mark_as_delivered", "Puede marcar pedidos como entregados"),
+            ("can_view_pedidos_reports", "Puede ver reportes de pedidos"),
+            ("can_export_pedidos", "Puede exportar pedidos"),
+            ("can_manage_own_pedidos", "Puede gestionar sus propios pedidos"),
+        ]
+        
+        # Constraints para garantizar integridad de datos
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(estado__in=[
+                    'PENDIENTE', 'CONFIRMADO', 'ENTREGADO', 'CANCELADO'
+                ]),
+                name='valid_estado_pedido'
+            )
+        ]
     
 class PedidoItem(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
@@ -461,3 +572,46 @@ class PedidoItem(models.Model):
 
     def __str__(self):
         return f"{self.repuesto.nombre} x {self.cantidad}"
+    
+    class Meta:
+        db_table = 'tiendaApp_pedidoitem'
+        verbose_name = 'Item de Pedido'
+        verbose_name_plural = 'Items de Pedido'
+        ordering = ['pedido', 'repuesto__nombre']  # Ordenar por pedido y nombre de repuesto
+        
+        # Índices optimizados
+        indexes = [
+            # Índice compuesto para la consulta más común:
+            # Buscar items por pedido y repuesto
+            models.Index(
+                fields=['pedido', 'repuesto'],
+                name='pedido_repuesto_idx'
+            ),
+        ]
+        
+        # Permisos específicos para el modelo
+        permissions = [
+            ("can_view_all_items", "Puede ver todos los items de pedidos"),
+            ("can_add_items", "Puede añadir items a pedidos"),
+            ("can_modify_items", "Puede modificar items de pedidos"),
+            ("can_delete_items", "Puede eliminar items de pedidos"),
+            ("can_modify_prices", "Puede modificar precios de items"),
+            ("can_view_item_history", "Puede ver historial de items"),
+        ]
+        
+        # Constraints para garantizar integridad de datos
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(cantidad__gt=0),
+                name='positive_cantidad'
+            ),
+            models.CheckConstraint(
+                check=models.Q(precio_unitario__gt=0),
+                name='positive_precio'
+            ),
+            # Evitar duplicados de repuesto en el mismo pedido
+            models.UniqueConstraint(
+                fields=['pedido', 'repuesto'],
+                name='unique_repuesto_per_pedido'
+            )
+        ]
