@@ -264,13 +264,6 @@ class StockOperation(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     ip_address = models.GenericIPAddressField()
     
-    # def clean(self):
-    #     if self.tipo_operacion == 'MERMA':
-    #         if self.cantidad > self.repuesto.stock:
-    #             raise ValidationError(
-    #                 f"No puede registrar una merma mayor al stock disponible ({self.repuesto.stock})"
-    #             )
-    
     def clean(self):
         if self.tipo_operacion == 'MERMA':
             
@@ -280,8 +273,6 @@ class StockOperation(models.Model):
                 raise ValidationError({
                     '__all__': f'No puede registrar una merma mayor al stock disponible ({self.repuesto.stock} unidades)'
                 })
-            # raise ValidationError(f"No puede registrar una merma mayor al stock disponible ({self.repuesto.stock})")
-            # if self.tipo_operacion == 'MERMA' and self.cantidad > self.repuesto.stock:
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -511,26 +502,12 @@ class PedidoItem(models.Model):
                 ip_address=ip_address
             )
             
-            # Actualizar stock
-            # nuevo_stock = self.repuesto.stock - self.cantidad
-            
-            # self.repuesto.stock -= self.cantidad
-            # self.repuesto._stock_operation = True  
-            
-            # self.repuesto.save()
-            
-            
         super().save(*args, **kwargs)
         
         
     def delete(self, *args, **kwargs):
         if self.pedido.estado == 'CANCELADO':
             raise ValidationError("No se pueden eliminar items de un pedido cancelado")
-            
-        # Restaurar stock solo si el pedido no está cancelado
-        # if self.pedido.estado != 'CANCELADO':
-        #     self.repuesto.stock += self.cantidad
-        #     self.repuesto.save()
             
         # Restaurar stock y registrar operación solo si el pedido no está cancelado
         if self.pedido.estado != 'CANCELADO':
@@ -540,8 +517,6 @@ class PedidoItem(models.Model):
             if request:
                 client_ip, _ = get_client_ip(request)
                 ip_address = client_ip or '0.0.0.0'
-                
-            logger.info(f"[BEFORE] Item ID: {self.id}, Cantidad: {self.cantidad}, Stock actual: {self.repuesto.stock}")
 
             # Crear operación de stock tipo RESTITUCION
             StockOperation.objects.create(
@@ -553,15 +528,6 @@ class PedidoItem(models.Model):
                 ip_address=ip_address,
                 documento_referencia=''
             )
-            
-            logger.info(f"[BEFORE-CHUINK] Item ID: {self.id}, Cantidad: {self.cantidad}, Stock actual: {self.repuesto.stock}")
-            
-            # Restaurar stock
-            # self.repuesto.stock += self.cantidad
-            # self.repuesto._stock_operation = True
-            
-            logger.info(f"[AFTER] Item ID: {self.id}, Cantidad: {self.cantidad}, Stock actual: {self.repuesto.stock}")
-            
 
             self.repuesto.save()
         

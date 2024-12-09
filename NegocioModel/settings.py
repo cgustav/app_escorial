@@ -32,15 +32,6 @@ STATIC_DIR = os.path.join(BASE_DIR,'static')
 SECRET_KEY = 'django-insecure-ywmoc@#5xjk6j=ou$b1%ohy5%-4+do5jvm4q8i+6*_(pc4t#pf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
-
-
-# AWS RELATED CONFIGURATION
-
-
-
 
 # Configuraciones base de seguridad
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

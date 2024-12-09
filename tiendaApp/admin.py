@@ -4,13 +4,11 @@ from tiendaApp.models import Tipo,Repuesto
 
 # Registrar Permission
 admin.site.register(Permission)
+
 @admin.register(Tipo)
 class TipoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'creado']
     search_fields = ['nombre']
-
-# class CantidadAdmin(admin.ModelAdmin):
-#     list_display = ['nombre']
 
 @admin.register(Repuesto)
 class RepuestoAdmin(admin.ModelAdmin):
@@ -26,8 +24,3 @@ class RepuestoAdmin(admin.ModelAdmin):
     search_fields = ['nombre', 'codigoRepuesto']
     readonly_fields = ['codigoRepuesto', 'stock', 'creado']
     ordering = ['nombre']
-
-
-# admin.site.register(Tipo,TipoAdmin)
-# admin.site.register(Cantidad,CantidadAdmin)
-# admin.site.register(Repuesto,RepuestoAdmin)

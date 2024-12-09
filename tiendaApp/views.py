@@ -5,7 +5,6 @@ from django.contrib import messages
 from tiendaApp.models import Repuesto,Tipo, Pedido, PedidoItem, StockOperation
 from .forms import SearchForm
 from django.core.paginator import Paginator
-# from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from ipware import get_client_ip
@@ -134,18 +133,6 @@ def editar_repuesto(request,repuesto_id):
         'repuesto': repuesto
     })
 
-# NOTE: DEPRECADO
-# @login_required
-# @user_passes_test(staff_check, login_url='login')
-# def eliminar_repuesto(request, repuesto_id):
-#     repuesto = get_object_or_404(Repuesto, id=repuesto_id)
-
-#     if request.method == 'POST':
-#         repuesto.delete()
-#         return redirect('/repuestos/')
-
-#     return render(request, 'tiendaTemplates/repuestoDel.html', {'repuesto':repuesto})
-
 @login_required
 @user_passes_test(staff_check, login_url='login')
 def desactivar_repuesto(request, repuesto_id):
@@ -255,34 +242,6 @@ def lista_operaciones_stock(request):
     
     return render(request, 'stock/lista_operaciones.html', context)
 
-
-# @login_required
-# @user_passes_test(staff_check)
-# def exportar_operaciones_stock(request):
-#     operaciones = StockOperation.buscar(
-#         query=request.GET.get('query'),
-#         tipo_operacion=request.GET.get('tipo_operacion'),
-#         fecha_desde=request.GET.get('fecha_desde'),
-#         fecha_hasta=request.GET.get('fecha_hasta')
-#     )
-
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="operaciones_stock.csv"'
-
-#     writer = csv.writer(response)
-#     writer.writerow(['Fecha', 'Tipo', 'Repuesto', 'Cantidad', 'Usuario', 'Motivo'])
-
-#     for op in operaciones:
-#         writer.writerow([
-#             op.fecha_operacion.strftime('%d/%m/%Y %H:%M'),
-#             op.get_tipo_operacion_display(),
-#             op.repuesto.nombre,
-#             op.cantidad,
-#             op.usuario.username,
-#             op.motivo
-#         ])
-
-#     return response
     
 @login_required
 @user_passes_test(staff_check)

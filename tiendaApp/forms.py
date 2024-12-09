@@ -8,9 +8,7 @@ from django.core.exceptions import ValidationError
 import datetime
 
 
-class RepuestoForm(forms.ModelForm):
-    # codigoRepuesto = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ingrese código repuesto'}))
-    
+class RepuestoForm(forms.ModelForm):    
     codigoRepuesto = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -19,7 +17,7 @@ class RepuestoForm(forms.ModelForm):
         }),
         required=False
     )
-    # nombre = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ingrese nombre'}))
+
     nombre = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -27,7 +25,6 @@ class RepuestoForm(forms.ModelForm):
         }),
         max_length=160
     )
-    # precio = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder':'Ingrese precio'}))
     
     precio = forms.IntegerField(
         widget=forms.NumberInput(attrs={
@@ -39,9 +36,6 @@ class RepuestoForm(forms.ModelForm):
         min_value=1,
         max_value=99999999
     )
-    
-    # NOTE Metodo Antiguo
-    # fotografia = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}), required=False)
     
     # NOTE Nuevo Metodo S3
     fotografia = forms.ImageField(
@@ -55,19 +49,11 @@ class RepuestoForm(forms.ModelForm):
         }
     )
 
-   
     tipo = forms.ModelChoiceField(
         queryset=Tipo.objects.all().order_by('-nombre'),  # Orden descendente
         empty_label='Seleccione un tipo de repuesto',
         widget=forms.Select(attrs={'class':'form-control'})
     )
-    
-    # NOTE CODIGO REFACTORIZADO - REFACTOR FROM cantidad to stock
-    # cantidad = forms.ModelChoiceField(
-    #     queryset=Cantidad.objects.all(),
-    #     empty_label='Seleccione una cantidad',
-    #     widget=forms.Select(attrs={'class':'form-control'})
-    # )
     
     # TODO REVIEW THIS AFTER REFACTOR FROM cantidad to stock
     stock = forms.IntegerField(
@@ -136,6 +122,7 @@ class SearchForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
 
 class StockOperationForm(forms.ModelForm):
     class Meta:

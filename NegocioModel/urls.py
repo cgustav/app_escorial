@@ -41,16 +41,6 @@ urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('',vistas.inicio,name='inicio'),
-    
-
-    # path('login',vistas.inicio,name='inicio'),
-    # path('logout/', views.logout_view, name='logout'),
-    
-    # path('repuestos/', staff_member_required(vistas.todos_repuesto), name='repuestos'),
-    # path('repuestoAdd/', staff_member_required(vistas.crear_repuesto), name='crearRepuestos'),
-    # path('repuestoEdit/<int:repuesto_id>/', staff_member_required(vistas.cargar_editar_repuesto), name='editarRepuesto'),
-    # path('repuestoEditado/<int:repuesto_id>/', staff_member_required(vistas.editar_repuesto), name='repuestoEditado'),
-    # path('repuestoDel/<int:repuesto_id>/', staff_member_required(vistas.eliminar_repuesto),name='eliminarRepuesto'),
 
     # REPUESTOS
     # ===================
@@ -58,7 +48,6 @@ urlpatterns = [
     path('repuestoAdd/', vistas.crear_repuesto, name='crearRepuestos'),
     path('repuestoEdit/<int:repuesto_id>/', vistas.cargar_editar_repuesto, name='editarRepuesto'),
     path('repuestoEditado/<int:repuesto_id>/', vistas.editar_repuesto, name='repuestoEditado'),
-    # path('repuestoDel/<int:repuesto_id>/', vistas.eliminar_repuesto, name='eliminarRepuesto'),
     
     path('repuesto/<int:repuesto_id>/desactivar/', vistas.desactivar_repuesto, name='desactivarRepuesto'),
     path('repuesto/<int:repuesto_id>/activar/', vistas.activar_repuesto, name='activarRepuesto'),
@@ -76,10 +65,10 @@ urlpatterns = [
     path('pedidos/item/<int:item_id>/eliminar/', vistas.eliminar_item_pedido, name='eliminar_item_pedido'),
     path('pedidos/<int:pedido_id>/estado/', vistas.cambiar_estado_pedido, name='cambiar_estado_pedido'),
     
+    # ADMIN
+    # ===================
     path('accounts/',include('django.contrib.auth.urls')),
 ]
-
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
